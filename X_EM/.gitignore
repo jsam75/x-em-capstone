@@ -23,5 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
-notes-private.md 
+# Secrets
+.env
+.env.*
+
+# Private notes
 notes-private.md
+*.docx
+
