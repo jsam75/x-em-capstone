@@ -78,7 +78,7 @@ X_EM begins at a shared Landing page and branches based on user intent.
 
 This MVP flow prioritizes clarity, Low friction, and trust for both user roles.
 
-![User Flow Diagram] C:\Users\phoen\OneDrive\Desktop\X_EM Capstone\X_EM\X_EM\src\docs\X_EM User Flow v1.png
+![User Flow Diagram] (docs/user-flow-diagram-v1.png)
 
 Editable version:
 [Figma- User Flow v1] https://www.figma.com/board/eYNI8tXfZihbQY2PXWYBiA/X_EM-User-Flow-v1?node-id=0-1&p=f&t=flkKe4dEtCjg6fSq-0
