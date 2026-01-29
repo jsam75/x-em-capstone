@@ -1,7 +1,7 @@
 # X_EM - Event Management Platform
 
 ## Overview
-X_EM is a mobile first event discovery and management platform designed for educators hosting
+X_EM is a mobile-first event discovery and management platform designed for educators hosting
 and attending professional development conferences and enrichment events.
 
 The platform supports two primary user roles:
@@ -95,6 +95,27 @@ Frontend:
 Backend (planned):
 - Node / Express
 - Database: MySQL
+
+---
+
+## Architecture Docs
+
+Detailed architectural documentation is maintained in /docs/architecture to guide system design and support future scalability.
+
+- [System Architecture - Conceptual v1] 
+    (docs/architecture/system-architecture-conceptual-v1.md)
+
+- [Business Rules -v1] 
+    (docs/architecture/business-rules-v1.md)
+
+- [API Surface - Conceptual v1] 
+    (docs/architecture/api-surface-v1.md)
+
+- [Data Model - Conceptual v1] 
+    (docs/architecture/data-model-v1.md)
+
+- [Engineering Guardrails]
+    (docs/architecture/engineering-guardrails-v1.md)
 
 ---
 
