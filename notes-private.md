@@ -1,0 +1,13 @@
+# X_EM – Private Notes (Local Only)
+
+## Brainstorming
+- …
+
+## Long-term Ideas
+- …
+
+## Business / Strategy Thoughts
+- …
+
+## Naming / Branding
+- …
