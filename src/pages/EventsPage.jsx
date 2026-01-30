@@ -1,3 +1,5 @@
+import EventsScreen from "../features/events/EventsScreen";
+
 export default function EventsPage () {
-    return <h1>Events Page</h1>;
+    return <EventsScreen />;
 }

@@ -1,3 +1,5 @@
+import RegisterScreen from "../features/registrations/RegisterScreen";
+
 export default function RegisterPage () {
-    return <h1>Register Page</h1>;
+    return <RegisterScreen />;
 }

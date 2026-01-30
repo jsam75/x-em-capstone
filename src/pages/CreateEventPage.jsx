@@ -1,3 +1,6 @@
+import CreateEventScreen from "../features/organizer/CreateEventScreen";
+
 export default function CreateEventPage () {
-    return <h1>Create Event Page</h1>;
+    return <CreateEventScreen />;
 }
+   
