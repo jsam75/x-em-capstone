@@ -11,6 +11,8 @@ DROP TABLE IF EXISTS check_ins;
 DROP TABLE IF EXISTS tickets;
 DROP TABLE IF EXISTS payments;
 DROP TABLE IF EXISTS registrations;
+DROP TABLE IF EXISTS event_subjects;
+DROP TABLE IF EXISTS subjects;
 DROP TABLE IF EXISTS ticket_types;
 DROP TABLE IF EXISTS events;
 DROP TABLE IF EXISTS venues;
@@ -22,9 +24,10 @@ DROP TABLE IF EXISTS users;
 -- CREATE
 
 /* ==================================================================================================== */
--- Core Entities - first set of tables are Lookup Tables
+-- Core Entities - (first set of tables) Business entities that represent something the product manages
 /* ===================================================================================================== */
 
+/* 1 */
 CREATE TABLE users (
     user_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(120) NOT NULL,
@@ -39,7 +42,7 @@ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- relational database table, and supports Unicode characters.
 
 
-
+/* 2 */
 CREATE TABLE organizations (
     organization_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -52,7 +55,7 @@ SHOW TABLES LIKE 'organizations';
 DESCRIBE organizations;
 
 
-
+/* 3 */
 CREATE TABLE venues (
     venue_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -75,6 +78,7 @@ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- Events - Core Entity, but uses FKs to organizations and venues
 /* ===================================================================================== */
 
+/* 4 */
 CREATE TABLE events (
     event_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
@@ -88,7 +92,13 @@ CREATE TABLE events (
     starts_at DATETIME NOT NULL,
     ends_at DATETIME NOT NULL,
 
+    is_published BOOLEAN NOT NULL DEFAULT FALSE,
+    format VARCHAR(50) NOT NULL DEFAULT 'in-person', 
+
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT chk_events_format
+    CHECK (format IN ('in-person', 'online', 'hybrid')), /* enforce allowed format values */
 
     CONSTRAINT fk_events_organization
     FOREIGN KEY (organization_id) REFERENCES organizations(organization_id)
@@ -111,6 +121,7 @@ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- Ticket Types - Core Entity, but uses FK to events
 /* ===================================================================================== */
 
+/* 5 */
 CREATE TABLE ticket_types (
     ticket_type_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
@@ -129,7 +140,43 @@ CREATE TABLE ticket_types (
     ON UPDATE CASCADE
     ON DELETE CASCADE,
 
-    UNIQUE KEY uq_ticket_types_event_name (event_id, name) /* prevent duplicate ticket type names for the same event */
+    UNIQUE KEY uq_ticket_types_event_name (event_id, name), /* prevent duplicate ticket type names for the same event */
+    UNIQUE KEY uq_ticket_types_event_ticket_type (event_id, ticket_type_id) /* ensure ticket_type_id is unique within the context of an event */
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/* ==================================================================================================== */
+-- Subjects - Lookup table exists to support other tables, not be interacted with by normal users.
+/* ===================================================================================================== */
+
+/* 6 */
+CREATE TABLE subjects (
+    subject_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    UNIQUE KEY uq_subjects_name (name) /* ensure unique subject names */
+)
+ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/* ==================================================================================== */
+-- Events_Subjects - Join table for many-to-many relationship between events and subjects
+/* ===================================================================================== */
+
+/* 7 */
+CREATE TABLE event_subjects (
+    event_id BIGINT UNSIGNED NOT NULL,
+    subject_id BIGINT UNSIGNED NOT NULL,
+
+    PRIMARY KEY (event_id, subject_id), /* composite PK for join table */
+
+    CONSTRAINT fk_events_subjects_event
+    FOREIGN KEY (event_id) REFERENCES events(event_id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE,
+
+    CONSTRAINT fk_events_subjects_subject
+    FOREIGN KEY (subject_id) REFERENCES subjects(subject_id)
+    ON UPDATE CASCADE
+    ON DELETE RESTRICT
 )
 ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -138,6 +185,7 @@ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- Registrations - Transactional Entity; user and event participation
 /* ===================================================================================== */
 
+/* 8 */
 CREATE TABLE registrations (
     registration_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
@@ -149,6 +197,10 @@ CREATE TABLE registrations (
     status VARCHAR(50) NOT NULL DEFAULT 'pending', /* e.g. pending, confirmed, cancelled */
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
+    CONSTRAINT chk_registrations_status
+    CHECK (status IN ('pending', 'confirmed', 'cancelled')), /* enforce allowed status values */
+
+   
     CONSTRAINT fk_registrations_user
     FOREIGN KEY (user_id) REFERENCES users(user_id)
     ON UPDATE CASCADE
@@ -159,12 +211,13 @@ CREATE TABLE registrations (
     ON UPDATE CASCADE
     ON DELETE CASCADE,
 
-    CONSTRAINT fk_registrations_ticket_type
-    FOREIGN KEY (ticket_type_id) REFERENCES ticket_types(ticket_type_id)
+    CONSTRAINT fk_registrations_event_ticket_type
+    FOREIGN KEY (event_id, ticket_type_id) 
+    REFERENCES ticket_types(event_id, ticket_type_id)
     ON UPDATE CASCADE
     ON DELETE RESTRICT,
 
-    UNIQUE KEY uq_registrations_user_ticket (user_id, event_id) /* prevent duplicate registrations for the same event */
+    UNIQUE KEY uq_registrations_user_event (user_id, event_id) /* prevent duplicate registrations for the same event */
 )
 ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -173,6 +226,7 @@ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- Payments - Lifecycle Entity, registration payment; uses FK to registrations
 /* ===================================================================================== */
 
+/* 9*/
 CREATE TABLE payments (
     payment_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
@@ -202,6 +256,7 @@ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- Tickets - Transactional Entity, issued admission credential; uses FK to registrations
 /* ===================================================================================== */
 
+/* 10 */
 CREATE TABLE tickets (
     ticket_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
@@ -227,6 +282,7 @@ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- Check Ins - Lifecycle Entity, tracks ticket validation & attendance; uses FK to tickets
 /* ===================================================================================================== */
 
+/* 11 */
 CREATE TABLE check_ins (
     check_in_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
 
