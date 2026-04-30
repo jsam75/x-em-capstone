@@ -1,6 +1,8 @@
 export const groupEvents = (rows) => {
   const eventsMap = {};
 
+  console.log(rows.map(r => r.event_id));
+
   // Transform database rows into frontend-friendly format
   rows.forEach((row) => {
     if (!eventsMap[row.event_id]) {

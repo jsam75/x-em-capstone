@@ -1,5 +1,6 @@
 import { getAllEvents, getEventById as getEventByIdService } from "../services/eventService.js";
 import { groupEvents } from "../utils/groupEvents.js";
+import * as eventService from "../services/eventService.js";
 
 // Get all events with optional filters
 export const fetchEvents = async (req, res) => {
@@ -54,3 +55,14 @@ export const getEventById = async (req, res) => {
     });
   }
 };
+
+// Get all subjects for filtering
+export async function getAllSubjects(req, res) {
+  try {
+    const subjects = await eventService.getAllSubjects();
+    res.json({ data: subjects });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+}

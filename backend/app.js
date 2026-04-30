@@ -2,13 +2,14 @@ import express from "express";
 import cors from "cors";
 
 import { db } from "./src/config/db.js";
-import eventRoutes from "./src/routes/eventRoutes.js";
+import routes from "./src/routes/index.js";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use("/api/events", eventRoutes);
+app.use("/api", routes);
+
 
 
 app.get("/", (req, res) => {
