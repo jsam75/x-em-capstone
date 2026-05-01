@@ -3,15 +3,23 @@ import express from "express";
 import { 
     fetchEvents, 
     getEventById, 
-    getAllSubjects 
+    getAllSubjects,
+    createEvent,
+    updateEvent,
+    deleteEvent 
 } from "../controllers/eventControllers.js";
+
 const router = express.Router();
 
 // Static Route
 router.get("/", fetchEvents);
+router.post("/", createEvent);
+
 router.get("/subjects", getAllSubjects);
 
 // Dynamic Route
 router.get("/:id", getEventById);
+router.put("/:id", updateEvent);
+router.delete("/:id", deleteEvent);
 
 export default router;
