@@ -1,91 +1,75 @@
 import { getAllEvents, getEventById as getEventByIdService } from "../services/eventService.js";
-import { groupEvents } from "../utils/groupEvents.js";
 import * as eventService from "../services/eventService.js";
-import { parsePagination, buildPaginationMeta } from "../utils/pagination.js";
+import { parsePagination } from "../utils/pagination.js";
+
 
 // GET request functions
 
 // Get all events with pagination 
-export const fetchEvents = async (req, res) => {
+export const fetchEvents = async (req, res, next) => {
   try {   
-   const { published, city, subject } = req.query;
+   const { published, city, subject, sortBy, sortOrder } = req.query;
 
     // Pagination Extracted Logic
     const { limit, offset } = parsePagination(req.query);
 
-    const { eventsRows, totalCount } = await getAllEvents({
+    const result = await getAllEvents({
       published,
       city,
       subject,
       limit,
-      offset
+      offset,
+      sortBy,
+      sortOrder
     });
 
-    const formattedEvents = groupEvents(eventsRows);
-
-    res.json({
+  res.json({
       success: true,
-      data: formattedEvents,
-      meta: buildPaginationMeta({
-        total: totalCount,
-        limit,
-        offset
-      })
+      data: result.data,
+      meta: result.pagination
     });
 
   } catch (err) {
-    console.error("Error fetching events:", err);
-
-    res.status(500).json({
-      success: false,
-      message: "Server error"
-    });
+    next (err);
   }
 };
 
 // Get single event by ID
-export const getEventById = async (req, res) => {
+export const getEventById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const rows = await getEventByIdService(id);
-    if (!rows.length) {
+    const event = await getEventByIdService(id);
+
+     if (!event) {
       return res.status(404).json({
         success: false,
         message: "Event not found"
       });
     }
 
-    const formattedEvent = groupEvents(rows)[0];
-    
-      res.json({
+    res.json({
       success: true,
-      data: formattedEvent
+      data: event
     });
 
   } catch (err) {
-    console.error("Error fetching event:", err);
-
-    res.status(500).json({
-      success: false,
-      message: "Server error"
-    });
-  }
+    next (err);
+ }
 };
 
 // Get all subjects for filtering
-export async function getAllSubjects(req, res) {
+export async function getAllSubjects(req, res, next) {
   try {
     const subjects = await eventService.getAllSubjects();
-    res.json({ data: subjects });
+    res.json({ success: true, data: subjects });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
+    next (err);
+  };
 }
 
 // Create a new event (POST)
-export const createEvent = async (req, res) => {
+export const createEvent = async (req, res, next) => {
   try {
     const {
       name,
@@ -96,14 +80,6 @@ export const createEvent = async (req, res) => {
       venue_id,
       is_published
     } = req.body;
-
-    // Basic validation
-    if  (!name || !starts_at || !ends_at || !organization_id || !venue_id) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing required fields"
-      });
-    }
 
     const newEvent = await eventService.createEvent({
       name,
@@ -121,65 +97,37 @@ export const createEvent = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Error creating event:", err);
-
-    res.status(500).json({
-      success: false,
-      message: "Server error"
-    });
+    next (err);
   }
 };
 
 // Update an existing event (PUT)
-export const updateEvent = async (req, res) => {
+export const updateEvent = async (req, res, next) => { 
   try {
     const { id } = req.params;
     const updates = req.body;
 
-    if (!Object.keys(updates).length) {
-      return res.status(400).json({
-        success: false,
-        message: "No fields provided for update"
-      });
-    }
+    const updatedEvent = await eventService.updateEvent(id, updates);
 
-    const updatedRows = await eventService.updateEvent(id, updates);
-
-    if (!updatedRows || !updatedRows.length) {
+    if (!updatedEvent) {
       return res.status(404).json({
         success: false,
         message: "Event not found"
       });
     }
 
-     const grouped = groupEvents(updatedRows);
-
-     if (!grouped.length) {
-      return res.status(404).json({
-       success: false,
-       message: "Event not found after grouping"
-     });
-}
-
-     const formattedEvent = grouped[0];
-
     res.json({
       success: true,
-      data: formattedEvent
+      data: updatedEvent
     });
 
   } catch (err) {
-    console.error("Error updating event:", err);
-
-    res.status(500).json({
-      success: false,
-      message: "Server error"
-    });
+    next(err);
   }
 };
 
 // Delete an event (DELETE)
-export const deleteEvent = async (req, res) => {
+export const deleteEvent = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -198,11 +146,6 @@ export const deleteEvent = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Error deleting event:", err);
-
-    res.status(500).json({
-      success: false,
-      message: "Server error"
-    });
-  }
+    next (err);
+     }
 };

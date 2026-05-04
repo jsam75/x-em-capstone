@@ -1,21 +1,32 @@
 import { db } from "../config/db.js";
-
+import { groupEvents } from "../utils/groupEvents.js";
+import { normalizeSorting } from "../utils/normalizeSorting.js";
 
 // GET functions
 
 // Get All events with optional filters + pagination (GET)
+// Figure out how many events exist → pick which ones belong on this page → get 
+// their details
 export const getAllEvents = async (filters = {}) => {
-  const { published, city, subject, limit, offset } = filters;
+  const {  
+    city, 
+    subject,
+    published, 
+    limit = 10, 
+    offset = 0, 
+    sortBy = "starts_at", 
+    sortOrder = "ASC",
+ } = filters;
 
-  // Parse pagination
-  const limitVal = limit ? parseInt(limit) : 10;
-  const offsetVal = offset ? parseInt(offset) : 0;
+ const { safeSortBy, safeSortOrder } = normalizeSorting(sortBy, sortOrder);
 
-  // Build conditions
+// -------------------------
+// SHARED FILTER LOGIC
+// -------------------------
+
   const conditions = [];
   const values = [];
 
-  // Filtering logic
   if (published !== undefined) {
     conditions.push("e.is_published = ?");
     values.push(published === "true" ? 1 : 0);
@@ -37,9 +48,11 @@ export const getAllEvents = async (filters = {}) => {
     ? `WHERE ${conditions.join(" AND ")}`
     : "";
 
-  // COUNT query
+  // -----------------------------------
+  //  METADATA PHASE (Total Count)
+  // -----------------------------------
   const countQuery = `
-    SELECT COUNT(DISTINCT e.event_id) AS totalCount
+    SELECT COUNT(DISTINCT e.event_id) AS total
     FROM events e
     LEFT JOIN venues v ON e.venue_id = v.venue_id
     LEFT JOIN event_subjects es ON e.event_id = es.event_id
@@ -47,70 +60,109 @@ export const getAllEvents = async (filters = {}) => {
     ${whereClause}
   `;
 
-  const [countResult] = await db.query(countQuery, values);
-  const totalCount = countResult[0].totalCount;
+  const [[{ total }]] = await db.query(countQuery, values);
 
-  // ID query (pagination)
-  let idQuery = `
-    SELECT DISTINCT e.event_id
+  // -----------------------------------
+  //  SELECTION PHASE (Paginated IDs)
+  // -----------------------------------
+  const idQuery = `
+    SELECT DISTINCT e.event_id, e.starts_at
     FROM events e
     LEFT JOIN venues v ON e.venue_id = v.venue_id
     LEFT JOIN event_subjects es ON e.event_id = es.event_id
     LEFT JOIN subjects s ON es.subject_id = s.subject_id
     ${whereClause}
-    ORDER BY e.event_id
+    ORDER BY e.${safeSortBy} ${safeSortOrder}
     LIMIT ? OFFSET ?
   `;
 
-  const idParams = [...values, limitVal, offsetVal];
+  const [idRows] = await db.query(idQuery, [...values, Number(limit), Number(offset)]);
+  const eventIds = [...new Set(idRows.map(row => row.event_id))];
 
-  const [idRows] = await db.query(idQuery, idParams);
-
-  if (!idRows.length) {
-    return { eventsRows: [], totalCount };
+  // Early return if no results
+  if (eventIds.length === 0) {
+    return {
+      data: [],
+      pagination: {
+        total,
+        limit: Number(limit),
+        offset: Number(offset),
+        hasNext: false,
+        hasPrev: offset > 0
+      }
+    };
   }
-
-  // Extract IDs
-  const eventIds = idRows.map(r => r.event_id);
-
-  // Fetch full data
-  const placeholders = eventIds.map(() => "?").join(", ");
-
-  const dataQuery = `
-    SELECT
-      e.event_id,
-      e.name,
-      e.starts_at,
-      e.is_published,
-      v.city,
-      v.state,
-      t.price_cents,
-      t.capacity,
-      o.name AS organizer_name,
-      e.description,
-      s.name AS subject_name
-    FROM events e
-    LEFT JOIN venues v ON e.venue_id = v.venue_id
-    LEFT JOIN ticket_types t ON e.event_id = t.event_id
-    LEFT JOIN organizations o ON e.organization_id = o.organization_id
-    LEFT JOIN event_subjects es ON e.event_id = es.event_id
-    LEFT JOIN subjects s ON es.subject_id = s.subject_id
-    WHERE e.event_id IN (${placeholders})
-    ORDER BY e.event_id
-  `;
-
-  const [eventsRows] = await db.query(dataQuery, eventIds);
-
+ 
+if (!eventIds.length === 0) {
   return {
-    eventsRows,
-    totalCount
+    data: [],
+    pagination: {
+      total,
+      limit,
+      offset,
+      hasNext: false,
+      hasPrev: offset > 0
+    }
   };
-};
+}
 
+ // -----------------------------------
+  // RETRIEVAL PHASE (Full Event Data)
+  // -----------------------------------
+ // Build placeholders
+ const placeholders = eventIds.map(() => "?").join(", ");
+
+// Build query with expanded IN clause
+const dataQuery = `
+  SELECT 
+    e.event_id,
+    e.name,
+    e.description,
+    e.starts_at,
+    e.ends_at,
+    e.is_published,
+    v.city,
+    v.state,
+    o.name AS organizer_name,
+    t.price_cents,
+    t.capacity,
+    s.name AS subject_name
+  FROM events e
+  LEFT JOIN venues v ON e.venue_id = v.venue_id
+  LEFT JOIN organizations o ON e.organization_id = o.organization_id
+  LEFT JOIN ticket_types t ON e.event_id = t.event_id
+  LEFT JOIN event_subjects es ON e.event_id = es.event_id
+  LEFT JOIN subjects s ON es.subject_id = s.subject_id
+  WHERE e.event_id IN (${placeholders})
+`;
+
+// Execute ONLY this query
+const [eventRows] = await db.query(dataQuery, eventIds);
+
+
+  // -----------------------------------
+  // TRANSFORMATION PHASE (Normalize Data)
+  // -----------------------------------
+  const events = groupEvents(eventRows);
+
+  // -----------------------------------
+  // FINAL RESPONSE (Shape API Output)
+  // -----------------------------------
+  return {
+    data: events,
+    pagination: {
+      total,
+      limit: Number(limit),
+      offset: Number(offset),
+      hasNext: offset + limit < total,
+      hasPrev: offset > 0
+    }
+  };
+}
 
 // Get single event by ID (GET)
 export const getEventById = async (id) => {
-  const [rows] = await db.query(`
+  const query = (`
     SELECT
       e.event_id,
       e.name,
@@ -130,11 +182,16 @@ export const getEventById = async (id) => {
     LEFT JOIN event_subjects es ON e.event_id = es.event_id
     LEFT JOIN subjects s ON es.subject_id = s.subject_id
     WHERE e.event_id = ?
-  `, [id]);
+  `);
 
-  return rows;
+    const [rows] = await db.query(query, [id]);
+
+  if (!rows.length) return null;
+
+  return groupEvents(rows)[0]; 
 };
 
+// Get all subjects for filtering (GET)
 export async function getAllSubjects() {
   const [rows] = await db.query(`
     SELECT DISTINCT s.name AS name
@@ -142,13 +199,14 @@ export async function getAllSubjects() {
     ORDER BY s.name
   `);
 
-  return { rows, total  };
+  return rows;
 }
+
 
 // CREATE functions 
 
 // Create Event request function (POST)
-export const createEvent = async (eventData) => {
+export const createEvent = async (eventData) => {    
   const {
     name,
     description,
@@ -194,10 +252,28 @@ export const createEvent = async (eventData) => {
 
 // Update Event request function (PUT)
 export const updateEvent = async (id, updates) => {
+
+ // Whitelist of allowed fields to update
+   const allowedFields = [
+    "name",
+    "description",
+    "starts_at",
+    "ends_at",
+    "organization_id",
+    "venue_id",
+    "is_published"
+];
+
+// SQL pieces
   const fields = [];
   const values = [];
 
+  // Build update query safely (using allowedFields)
   for (let key in updates) {
+    if (!allowedFields.includes(key)) {
+      continue;
+    }
+
     fields.push(`${key} = ?`);
 
     if (key === "is_published") {
@@ -207,8 +283,15 @@ export const updateEvent = async (id, updates) => {
     }
   }
 
-  if (!fields.length) return null;
+ // No valid fields -> reject
+   if (!fields.length) {
+    const rows = await getEventById(id);
+    if (!rows.length) return null;
 
+    return groupEvents(rows)[0]; 
+   }
+
+  // Build query
   const query = `
     UPDATE events
     SET ${fields.join(", ")}
@@ -217,13 +300,14 @@ export const updateEvent = async (id, updates) => {
 
   values.push(id);
 
-  const [result] = await db.query(query, values);
+ const [result] = await db.query(query, values);
 
-  if (result.affectedRows === 0) return null;
+ if (result.affectedRows === 0) {
+    return null;
+ }
 
-  
-  const updatedRows = await getEventById(id);
-  return updatedRows;
+  const updatedEvent = await getEventById(id);
+  return updatedEvent;
 };
 
 // DELETE functions

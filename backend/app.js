@@ -3,12 +3,17 @@ import cors from "cors";
 
 import { db } from "./src/config/db.js";
 import routes from "./src/routes/index.js";
+import { errorHandler } from "./src/middleware/errorHandler.js";
+
+
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use("/api", routes);
+
+app.use(errorHandler); // MUST be last middleware 
 
 
 
@@ -25,5 +30,7 @@ app.get("/test-db", async (req, res) => {
     res.status(500).send("DB connection failed");
   }
 });
+
+
 
 export default app;

@@ -8,18 +8,20 @@ import {
     updateEvent,
     deleteEvent 
 } from "../controllers/eventControllers.js";
+import { validateEvent } from "../middleware/validateEvent.js";
 
 const router = express.Router();
 
 // Static Route
 router.get("/", fetchEvents);
-router.post("/", createEvent);
+router.post("/", validateEvent(false), createEvent);
 
 router.get("/subjects", getAllSubjects);
 
 // Dynamic Route
 router.get("/:id", getEventById);
-router.put("/:id", updateEvent);
+//router.put("/:id", updateEvent);
 router.delete("/:id", deleteEvent);
+router.put("/:id", validateEvent(true), updateEvent);
 
 export default router;
