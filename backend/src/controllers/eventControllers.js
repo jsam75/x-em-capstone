@@ -8,20 +8,24 @@ import { parsePagination } from "../utils/pagination.js";
 // Get all events with pagination 
 export const fetchEvents = async (req, res, next) => {
   try {   
-   const { published, city, subject, sortBy, sortOrder } = req.query;
+   const { city, startDate, endDate, subject, sortBy, sortOrder } = req.query;
 
     // Pagination Extracted Logic
     const { limit, offset } = parsePagination(req.query);
 
     const result = await getAllEvents({
-      published,
       city,
+      startDate,
+      endDate,
       subject,
       limit,
       offset,
       sortBy,
       sortOrder
     });
+
+
+console.log("Controller params:", { startDate, endDate });
 
   res.json({
       success: true,

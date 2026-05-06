@@ -11,7 +11,8 @@ export const getAllEvents = async (filters = {}) => {
   const {  
     city, 
     subject,
-    published, 
+    startDate,
+    endDate, 
     limit = 10, 
     offset = 0, 
     sortBy = "starts_at", 
@@ -27,22 +28,34 @@ export const getAllEvents = async (filters = {}) => {
   const conditions = [];
   const values = [];
 
-  if (published !== undefined) {
-    conditions.push("e.is_published = ?");
-    values.push(published === "true" ? 1 : 0);
-  }
-
+ 
+  // Optional filters
   if (city) {
     conditions.push("LOWER(v.city) = LOWER(?)");
     values.push(city);
   }
 
-  if (subject) {
-    const subjects = subject.split(",");
-    const placeholders = subjects.map(() => "?").join(", ");
-    conditions.push(`LOWER(s.name) IN (${placeholders})`);
-    values.push(...subjects.map(s => s.toLowerCase()));
-  }
+  if (startDate) {
+  conditions.push("e.starts_at >= ?");
+  values.push(startDate);
+}
+
+if (endDate) {
+  conditions.push("DATE(e.starts_at) <= ?");
+  values.push(endDate);
+}
+
+if (subject) {
+  const subjects = subject
+    .split(",")
+    .map(s => s.trim().toLowerCase());
+
+  const placeholders = subjects.map(() => "?").join(", ");
+
+  conditions.push(`LOWER(s.name) IN (${placeholders})`);
+  values.push(...subjects);
+}
+ 
 
   const whereClause = conditions.length
     ? `WHERE ${conditions.join(" AND ")}`
