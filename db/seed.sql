@@ -79,7 +79,9 @@ INSERT INTO subjects (name) VALUES
 ('Japanese'),('Asian Studies'),
 ('Math'),('Algebra'),('Calculus'),
 ('Economics'),('Social Studies'),('Updates'),
-('Food'),('Diet'),('Nutrition');
+('Food'),('Diet'),('Nutrition')
+('Science'), ('Biology'), ('Geology'), ('Chemistry'),
+('History'), ('World History'), ('US History'), ('World Ideology');
 
 
 /* =========================================================

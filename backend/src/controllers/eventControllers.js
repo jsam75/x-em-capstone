@@ -82,7 +82,8 @@ export const createEvent = async (req, res, next) => {
       ends_at,
       organization_id,
       venue_id,
-      is_published
+      is_published,
+      subjectTags
     } = req.body;
 
     const newEvent = await eventService.createEvent({
@@ -92,7 +93,8 @@ export const createEvent = async (req, res, next) => {
       ends_at,
       organization_id,
       venue_id,
-      is_published
+      is_published,
+      subjectTags
     });
 
     res.status(201).json({
@@ -102,6 +104,20 @@ export const createEvent = async (req, res, next) => {
 
   } catch (err) {
     next (err);
+  }
+};
+
+// Part of the POST request function - Get all organizations for dropdown
+export const getAllOrganizations = async (req, res, next) => {
+  try {
+    const orgs = await eventService.getAllOrganizations();
+
+    res.json({
+      success: true,
+      data: orgs
+    });
+  } catch (err) {
+    next(err);
   }
 };
 

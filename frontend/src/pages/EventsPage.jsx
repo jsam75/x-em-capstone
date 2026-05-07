@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import EventList from "../components/EventList";
 import EventFilters from "../components/EventFilters";
@@ -6,7 +7,7 @@ import PaginationControls from "../components/PaginationControls";
 import ActiveFilters from "../components/ActiveFilters";
 
 function EventsPage() {
-  
+    const navigate = useNavigate();
   // STATE
   const [events, setEvents] = useState([]);
   const [city, setCity] = useState("");
@@ -14,6 +15,8 @@ function EventsPage() {
   const [endDate, setEndDate] = useState("");
   const [subjects, setSubjects] = useState([]);
   const [subjectOptions, setSubjectOptions] = useState([]);
+  const [sortBy, setSortBy] = useState("starts_at");
+  const [sortOrder, setSortOrder] = useState("ASC");
 
   const [meta, setMeta] = useState({});
   const [offset, setOffset] = useState(0);
@@ -35,6 +38,9 @@ function EventsPage() {
       if (subjects.length > 0) {
       params.append("subject", subjects.join(","));
     }
+
+      params.append("sortBy", sortBy);
+      params.append("sortOrder", sortOrder);
 
       params.append("offset", offset);
 
@@ -60,7 +66,7 @@ function EventsPage() {
  // EFFECT: RUN ON FILTER CHANGE
   useEffect(() => {
     fetchEvents();
-  }, [city, startDate, endDate, subjects, offset]);
+  }, [city, startDate, endDate, subjects, sortBy, sortOrder, offset]);
 
   useEffect(() => {
   async function loadSubjects() {
@@ -104,6 +110,10 @@ function clearFilters() {
   subjects={subjects}
   setSubjects={setSubjects}
   subjectOptions={subjectOptions}
+  sortBy={sortBy}
+  setSortBy={setSortBy}
+  sortOrder={sortOrder}
+  setSortOrder={setSortOrder}
   clearFilters={clearFilters}
 /> 
 
@@ -115,6 +125,12 @@ function clearFilters() {
   clearFilters={clearFilters}
 />
 
+<button
+  onClick={() => navigate("/events/new")}
+  className="mb-4 bg-[#006d77] px-4 py-2 rounded hover:bg-[#005f66]"
+>
+  + Create Event
+</button>
 
  <EventList events={events} />
 

@@ -52,13 +52,21 @@ if (subject) {
 
   const placeholders = subjects.map(() => "?").join(", ");
 
-  conditions.push(`LOWER(s.name) IN (${placeholders})`);
-  values.push(...subjects);
+ conditions.push(`
+  e.event_id IN (
+    SELECT es.event_id
+    FROM event_subjects es
+    JOIN subjects s ON es.subject_id = s.subject_id
+    WHERE s.name IN (${placeholders})
+  )
+`);
 }
- 
 
-  const whereClause = conditions.length
-    ? `WHERE ${conditions.join(" AND ")}`
+conditions.push(`e.starts_at >= CURRENT_DATE`);
+ 
+// Keep last - this combines above conditions into a single clause (or empty string if no filters)
+  const filterClause = conditions.length
+    ? conditions.join(" AND ")
     : "";
 
   // -----------------------------------
@@ -70,24 +78,24 @@ if (subject) {
     LEFT JOIN venues v ON e.venue_id = v.venue_id
     LEFT JOIN event_subjects es ON e.event_id = es.event_id
     LEFT JOIN subjects s ON es.subject_id = s.subject_id
-    ${whereClause}
+    ${filterClause ? `WHERE ${filterClause}` : ""}
   `;
 
   const [[{ total }]] = await db.query(countQuery, values);
+
 
   // -----------------------------------
   //  SELECTION PHASE (Paginated IDs)
   // -----------------------------------
   const idQuery = `
-    SELECT DISTINCT e.event_id, e.starts_at
-    FROM events e
-    LEFT JOIN venues v ON e.venue_id = v.venue_id
-    LEFT JOIN event_subjects es ON e.event_id = es.event_id
-    LEFT JOIN subjects s ON es.subject_id = s.subject_id
-    ${whereClause}
-    ORDER BY e.${safeSortBy} ${safeSortOrder}
-    LIMIT ? OFFSET ?
-  `;
+  SELECT e.event_id, e.starts_at, e.name
+  FROM events e
+  LEFT JOIN venues v ON e.venue_id = v.venue_id
+  ${filterClause ? `WHERE ${filterClause}` : ""}
+  GROUP BY e.event_id
+  ORDER BY e.${safeSortBy} ${safeSortOrder}, e.event_id ASC
+  LIMIT ? OFFSET ?
+`;
 
   const [idRows] = await db.query(idQuery, [...values, Number(limit), Number(offset)]);
   const eventIds = [...new Set(idRows.map(row => row.event_id))];
@@ -147,7 +155,10 @@ const dataQuery = `
   LEFT JOIN event_subjects es ON e.event_id = es.event_id
   LEFT JOIN subjects s ON es.subject_id = s.subject_id
   WHERE e.event_id IN (${placeholders})
-`;
+  ${filterClause ? `AND ${filterClause}` : ""}
+  ORDER BY e.${safeSortBy} ${safeSortOrder}, e.event_id ASC
+  `;
+
 
 // Execute ONLY this query
 const [eventRows] = await db.query(dataQuery, eventIds);
@@ -195,6 +206,7 @@ export const getEventById = async (id) => {
     LEFT JOIN event_subjects es ON e.event_id = es.event_id
     LEFT JOIN subjects s ON es.subject_id = s.subject_id
     WHERE e.event_id = ?
+    ORDER BY s.name ASC
   `);
 
     const [rows] = await db.query(query, [id]);
@@ -207,9 +219,9 @@ export const getEventById = async (id) => {
 // Get all subjects for filtering (GET)
 export async function getAllSubjects() {
   const [rows] = await db.query(`
-    SELECT DISTINCT s.name AS name
-    FROM subjects s
-    ORDER BY s.name
+    SELECT name
+    FROM subjects 
+    ORDER BY name ASC;
   `);
 
   return rows;
@@ -227,7 +239,8 @@ export const createEvent = async (eventData) => {
     ends_at,
     organization_id,
     venue_id,
-    is_published = 0
+    is_published = 0,
+    subjectTags = []
   } = eventData;
 
   const [result] = await db.query(
@@ -254,12 +267,52 @@ export const createEvent = async (eventData) => {
     ]
   );
 
+  const eventId = result.insertId;
+
+  if (subjectTags.length > 0) {
+  //  dedupe
+  const uniqueTags = [...new Set(subjectTags)];
+
+  //  get subject_ids
+  const [subjectRows] = await db.query(
+    `
+    SELECT subject_id, name
+    FROM subjects
+    WHERE name IN (?)
+    `,
+    [uniqueTags]
+  );
+
+  //  insert into join table
+  for (const subject of subjectRows) {
+    await db.query(
+      `
+      INSERT INTO event_subjects (event_id, subject_id)
+      VALUES (?, ?)
+      `,
+      [eventId, subject.subject_id]
+    );
+  }
+}
+
   return {
     event_id: result.insertId,
     ...eventData,
     is_published: is_published ? 1 : 0
   };
 };
+
+
+// Part of the GET & POST request functions - Be able to search or select organization for dropdown
+export async function getAllOrganizations() {
+  const [rows] = await db.query(`
+    SELECT organization_id, name
+    FROM organizations
+    ORDER BY name ASC
+  `);
+
+  return rows;
+}
 
 // UPDATE functions
 

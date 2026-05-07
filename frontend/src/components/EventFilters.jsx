@@ -8,8 +8,13 @@ function EventFilters({
   subjects,
   setSubjects,
   subjectOptions,
+  sortBy,
+  setSortBy,
+  sortOrder,
+  setSortOrder,
   clearFilters,
-}) {
+}) 
+{
   return (
     <div className="bg-[#132b45] p-4 rounded-lg mb-4">
     <p className="text-[#fff5e6] text-sm font-medium mb-2">
@@ -94,6 +99,58 @@ function EventFilters({
       </label>
     ))}
   </div>
+</div>
+
+{/* Sort By Box */}
+<div className="flex flex-col gap-2">
+  <label className="text-sm font-medium text-[#fff5e6]">
+    Sort Events
+  </label>
+
+  <select
+    value={`${sortBy}-${sortOrder}`}
+    onChange={(e) => {
+      const [newSortBy, newSortOrder] = e.target.value.split("-");
+
+      setSortBy(newSortBy);
+      setSortOrder(newSortOrder);
+    }}
+     className="
+      ml-2 p-1 rounded
+      bg-[#0b213a]
+      text-[#fff5e6]
+      border border-[#9fb7c9]
+
+      hover:border-[#006d77]
+      hover:bg-[#132b45]
+
+      focus:outline-none
+      focus:ring-2
+     focus:ring-[#006d77]
+
+     cursor-pointer
+  " 
+ >
+    <option value="select sort">
+      Select Sort Option
+    </option>
+
+    <option value="starts_at-ASC">
+      Events (Earliest First)
+    </option>
+
+    <option value="starts_at-DESC">
+      Events (Latest First)
+    </option>
+
+    <option value="name-ASC">
+      Name A-Z
+    </option>
+
+    <option value="name-DESC">
+      Name Z-A
+    </option>
+  </select>
 </div>
 
       {/* Clear Button */}

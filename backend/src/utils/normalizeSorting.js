@@ -2,9 +2,7 @@ export function normalizeSorting(sortBy, sortOrder) {
   const allowedSortFields = [
     "starts_at",
     "ends_at",
-    "name",
-    "city",
-    "price_cents"
+    "name"
   ];
 
   const safeSortBy = allowedSortFields.includes(sortBy)

@@ -1,12 +1,11 @@
 export const groupEvents = (rows) => {
-  const eventsMap = {};
+  const eventsMap = new Map();
 
   console.log(rows.map(r => r.event_id));
 
-  // Transform database rows into frontend-friendly format
   rows.forEach((row) => {
-    if (!eventsMap[row.event_id]) {
-      eventsMap[row.event_id] = {
+    if (!eventsMap.has(row.event_id)) {
+      eventsMap.set(row.event_id, {
         id: row.event_id,
         title: row.name,
         date: row.starts_at
@@ -23,13 +22,13 @@ export const groupEvents = (rows) => {
         description: row.description || null,
         published: Boolean(row.is_published),
         subjectTags: []
-      };
+      });
     }
 
     if (row.subject_name) {
-      eventsMap[row.event_id].subjectTags.push(row.subject_name);
+      eventsMap.get(row.event_id).subjectTags.push(row.subject_name);
     }
   });
 
-  return Object.values(eventsMap);
+  return Array.from(eventsMap.values());
 };
