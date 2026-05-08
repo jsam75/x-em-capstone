@@ -1,45 +1,48 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-export default function CreateEventPage() {
-  const navigate = useNavigate();
+export default function EditEventPage() {
+    const { id } = useParams();
+    const navigate = useNavigate();
 
-    // STATE
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    starts_at: "",
-    ends_at: "",
-    organization_id: "",
-    venue_id: "",
-    is_published: 1
-  });
+  // STATE - Hydrated async state because an existing event is being edited
+  const [form, setForm] = useState(null);
 
   const [subjectOptions, setSubjectOptions] = useState([]);
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [organizationOptions, setOrganizationOptions] = useState([]);
-  const [venueOptions, setVenueOptions] = useState([]);
 
 
-  // EFFECT (runs once on load)
+  // EFFECT #1 - fetch dropdown options
   useEffect(() => {
     async function fetchSubjects() {
-      const [subjectsRes, orgsRes, venuesRes] = await Promise.all([
+      const [subjectsRes, orgsRes] = await Promise.all([
         fetch("http://localhost:3000/api/events/subjects"),
-        fetch("http://localhost:3000/api/events/organizations"),
-        fetch("http://localhost:3000/api/events/venues")
+        fetch("http://localhost:3000/api/events/organizations")
       ]);
      const subjects = await subjectsRes.json();
      const orgs = await orgsRes.json();
-     const venues = await venuesRes.json();
-     
-    setSubjectOptions(subjects.data);
-    setOrganizationOptions(orgs.data);
-    setVenueOptions(venues.data);
+
+      setSubjectOptions(subjects.data);
+      setOrganizationOptions(orgs.data);
     }
 
     fetchSubjects();
   }, []);
+
+
+  //EFFECT #2 - fetch event being edited
+  useEffect(() => {
+  async function loadEvent() {
+    const res = await fetch(`http://localhost:3000/api/events/${id}`);
+    const result = await res.json();
+
+    setForm(result.data);
+  }
+
+  loadEvent();
+}, [id]);
+
 
 
   // HANDLERS
@@ -60,13 +63,12 @@ export default function CreateEventPage() {
     );
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:3000/api/events", {
-        method: "POST",
+      const res = await fetch(`http://localhost:3000/api/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json"
         },
@@ -78,20 +80,24 @@ export default function CreateEventPage() {
 
       const result = await res.json();
 
-      console.log("Created:", result);
+      console.log("Updated:", result);
 
-      navigate("/");
+      navigate(`/events/${id}`);
     } catch (err) {
-      console.error("Error creating event:", err);
+      console.error("Error updating event:", err);
     }
   };
 
-   
-  return (
+  if (!form) {
+  return <p>Loading...</p>;
+}
+
+
+   return (
     <main className="min-h-screen bg-[#0b213a] text-[#fff5e6] p-6">
       <div className="max-w-2xl mx-auto space-y-6">
 
-        <h1 className="text-2xl font-bold">Create Event</h1>
+        <h1 className="text-2xl font-bold">Update Event Details</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
 
@@ -101,7 +107,7 @@ export default function CreateEventPage() {
             placeholder="Event Name"
             value={form.name}
             onChange={handleChange}
-            className="w-full p-2 rounded bg-[#132b45]"
+            className="w-full p-2 rounded bg-[#132b45] cursor-pointer"
             required
           />
 
@@ -151,28 +157,29 @@ export default function CreateEventPage() {
 </select>
 
 
-          <textarea
+          <textarea          
             name="description"
             placeholder="Description"
             value={form.description}
             onChange={handleChange}
-            className="w-full p-2 rounded bg-[#132b45]"
+            className="w-full p-2 rounded bg-[#132b45] 
+            border border-[#9fb7c9]
+            focus:outline-none
+            focus:ring-2
+            focus:ring-[#006d77]
+            cursor-pointer"
           />
         
-        <select
-          name="venue_id"
-          value={form.venue_id}
-          onChange={handleChange}
-          className="w-full p-2 rounded bg-[#132b45]"
-    >
-        <option value="">Select City</option>
-
-      {venueOptions.map((venue) => (
-      <option key={venue.venue_id} value={venue.venue_id}>
-         {venue.city}, {venue.state}
-      </option>
-  ))}
-</select>
+     <select
+            name="venue_id"
+            value={form.venue_id}
+            onChange={handleChange}
+            className="w-full p-2 rounded bg-[#132b45] cursor-pointer"
+        >
+        <option value={1}>Miami, FL</option>
+        <option value={2}>San Antonio, TX</option>
+        <option value={3}>Tampa, FL</option>
+    </select>
 
 
           <input
@@ -181,7 +188,7 @@ export default function CreateEventPage() {
             value={form.starts_at}
             onChange={handleChange}
             className="w-full p-2 rounded bg-[#132b45] text-white border border-[#9fb7c9] [color-scheme:dark]
-            hover:border-[#006d77] hover:bg-[#132b45]
+            hover:border-[#006d77] hover:bg-[#132b45] cursor-pointer
             focus:outline-none focus:ring-2 focus:ring-[#006d77] cursor-pointer"
             required
           />
@@ -193,7 +200,7 @@ export default function CreateEventPage() {
             value={form.ends_at}
             onChange={handleChange}
             className="w-full p-2 rounded bg-[#132b45] text-white border border-[#9fb7c9] [color-scheme:dark]
-            hover:border-[#006d77] hover:bg-[#132b45]
+            hover:border-[#006d77] hover:bg-[#132b45] cursor-pointer
             focus:outline-none focus:ring-2 focus:ring-[#006d77] cursor pointer"
             required
           />
@@ -203,7 +210,7 @@ export default function CreateEventPage() {
             type="submit"
             className="bg-[#006d77] px-4 py-2 rounded hover:bg-[#005f66]"
           >
-            Create Event
+            Edit Event
         </button>
 
         </form>

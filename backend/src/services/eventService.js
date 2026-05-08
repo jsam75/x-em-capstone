@@ -60,6 +60,9 @@ if (subject) {
     WHERE s.name IN (${placeholders})
   )
 `);
+
+values.push(...subjects);
+
 }
 
 conditions.push(`e.starts_at >= CURRENT_DATE`);
@@ -161,7 +164,8 @@ const dataQuery = `
 
 
 // Execute ONLY this query
-const [eventRows] = await db.query(dataQuery, eventIds);
+const queryValues = [...eventIds, ...values];
+const [eventRows] = await db.query(dataQuery, queryValues);
 
 
   // -----------------------------------
@@ -303,7 +307,9 @@ export const createEvent = async (eventData) => {
 };
 
 
-// Part of the GET & POST request functions - Be able to search or select organization for dropdown
+// Shared HTTP request functions: GET, POST, PUT
+
+//Be able to select organization for dropdown
 export async function getAllOrganizations() {
   const [rows] = await db.query(`
     SELECT organization_id, name
@@ -313,6 +319,20 @@ export async function getAllOrganizations() {
 
   return rows;
 }
+
+//Be able to select venues (city)
+export const getAllVenues = async () => {
+  const query = `
+    SELECT venue_id, city, state
+    FROM venues
+    ORDER BY city ASC
+  `;
+
+  const [rows] = await db.query(query);
+
+  return rows;
+};
+
 
 // UPDATE functions
 
@@ -373,6 +393,7 @@ export const updateEvent = async (id, updates) => {
  }
 
   const updatedEvent = await getEventById(id);
+
   return updatedEvent;
 };
 

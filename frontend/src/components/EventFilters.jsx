@@ -21,15 +21,42 @@ function EventFilters({
     Filters
     </p>
 
-    <div className="flex flex-wrap gap-4 items-center text-sm text-[#fff5e6]">
+    <div className="flex flex-col gap-4 items-center text-sm text-[#fff5e6]">
       
-      {/* City */}
+   {/* Date Range */}
+<label>
+  From:
+  <input
+    type="date"
+    value={startDate}
+    onChange={(e) => setStartDate(e.target.value)}
+    className="w-full max-w-md ml-2 p-1 rounded bg-[#0b213a] text-[#fff5e6] border border-[#9fb7c9] [color-scheme:dark]
+    hover:border-[#006d77] hover:bg-[#132b45]
+    focus:outline-none focus:ring-2 focus:ring-[#006d77]
+    cursor-pointer"
+  />
+</label>
+
+<label>
+  To:
+  <input
+    type="date"
+    value={endDate}
+    onChange={(e) => setEndDate(e.target.value)}
+    className="w-full max-w-md ml-2 p-1 rounded bg-[#0b213a] text-[#fff5e6] border border-[#9fb7c9] [color-scheme:dark]
+    hover:border-[#006d77] hover:bg-[#132b45]
+    focus:outline-none focus:ring-2 focus:ring-[#006d77]
+    cursor-pointer"
+  />
+</label>
+
+   {/* City */}
       <label>
         City:
         <select
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          className="ml-2 p-1 rounded bg-[#0b213a] text-[#fff5e6] border border-[#9fb7c9]
+          className="w-full max-w-md ml-2 p-1 rounded bg-[#0b213a] text-[#fff5e6] border border-[#9fb7c9]
           hover:border-[#006d77] hover:bg-[#132b45]
           focus:outline-none focus:ring-2 focus:ring-[#006d77]
           cursor-pointer"
@@ -44,38 +71,11 @@ function EventFilters({
         </select>
       </label>
 
-         {/* Date Range */}
-        <label>
-  From:
-  <input
-    type="date"
-    value={startDate}
-    onChange={(e) => setStartDate(e.target.value)}
-    className="ml-2 p-1 rounded bg-[#0b213a] text-[#fff5e6] border border-[#9fb7c9] [color-scheme:dark]
-    hover:border-[#006d77] hover:bg-[#132b45]
-    focus:outline-none focus:ring-2 focus:ring-[#006d77]
-    cursor-pointer"
-  />
-</label>
-
-<label>
-  To:
-  <input
-    type="date"
-    value={endDate}
-    onChange={(e) => setEndDate(e.target.value)}
-    className="ml-2 p-1 rounded bg-[#0b213a] text-[#fff5e6] border border-[#9fb7c9] [color-scheme:dark]
-    hover:border-[#006d77] hover:bg-[#132b45]
-    focus:outline-none focus:ring-2 focus:ring-[#006d77]
-    cursor-pointer"
-  />
-</label>
-
-      {/* Subjects */}
+    {/* Subjects */}
       <div className="flex flex-col">
   <span className="mb-1">Subjects:</span>
 
-  <div className="max-h-32 overflow-y-auto bg-[#0b213a] border border-[#9fb7c9] rounded p-2 space-y-1
+  <div className="w-full max-w-md max-h-32 overflow-y-auto bg-[#0b213a] border border-[#9fb7c9] rounded p-2 space-y-1
   hover:border-[#006d77] hover:bg-[#132b45]
   focus-within:border-[#006d77] focus-within:bg-[#132b45]
   cursor-pointer">
@@ -99,13 +99,26 @@ function EventFilters({
       </label>
     ))}
   </div>
+  </div>
+
+   {/* Clear Button */}
+      <button
+        onClick={clearFilters}
+        className="px-3 py-1 bg-[#006d77] text-[#fff5e6] rounded hover:bg-[#005f66]"
+      >
+        Clear
+      </button>
+ 
 </div>
 
+<div className="border-t border-[#9fb7c9] my-6"></div>
+
 {/* Sort By Box */}
-<div className="flex flex-col gap-2">
-  <label className="text-sm font-medium text-[#fff5e6]">
-    Sort Events
-  </label>
+<div className="bg-[#132b45] p-4 rounded mt-4">
+  <div className="flex flex-col items-center gap-2">
+    <label className="text-sm font-medium text-[#fff5e6]">
+      Sort Events
+    </label>
 
   <select
     value={`${sortBy}-${sortOrder}`}
@@ -131,10 +144,6 @@ function EventFilters({
      cursor-pointer
   " 
  >
-    <option value="select sort">
-      Select Sort Option
-    </option>
-
     <option value="starts_at-ASC">
       Events (Earliest First)
     </option>
@@ -150,16 +159,11 @@ function EventFilters({
     <option value="name-DESC">
       Name Z-A
     </option>
-  </select>
+   </select>
+  
 </div>
 
-      {/* Clear Button */}
-      <button
-        onClick={clearFilters}
-        className="px-3 py-1 bg-[#006d77] text-[#fff5e6] rounded hover:bg-[#005f66]"
-      >
-        Clear
-      </button>
+     
 
     </div>
 </div>

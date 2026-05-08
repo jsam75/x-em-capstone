@@ -107,7 +107,9 @@ export const createEvent = async (req, res, next) => {
   }
 };
 
-// Part of the POST request function - Get all organizations for dropdown
+// Shared HTTP request functions: GET, POST, PUT
+
+// Organizations
 export const getAllOrganizations = async (req, res, next) => {
   try {
     const orgs = await eventService.getAllOrganizations();
@@ -121,7 +123,23 @@ export const getAllOrganizations = async (req, res, next) => {
   }
 };
 
-// Update an existing event (PUT)
+// Venues
+export const getAllVenues = async (req, res, next) => {
+
+  try {
+    const venues = await eventService.getAllVenues();
+
+    res.json({
+      success: true,
+      data: venues
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Update an existing event (PUT) - behaves like PATCH
 export const updateEvent = async (req, res, next) => { 
   try {
     const { id } = req.params;

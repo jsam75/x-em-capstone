@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 export default function EventDetailPage() {
@@ -98,16 +98,24 @@ export default function EventDetailPage() {
         </section>
       </div>
 
-        {/* Delete Button */}
-    <div className="flex justify-center mt-4">
-      <button
-        onClick={handleDelete}
-        className="mt-4 bg-red-600 px-4 py-2 rounded hover:bg-red-700 transition-colors"
->
-        Delete Event
-    </button>
-  </div>
+              
+  <div className="flex justify-between items-center mt-6">
+  {/* Edit Event Page Link */}
+  <Link
+    to={`/events/${event.id}/edit`}
+    className="inline-block mb-4 bg-[#006d77] px-4 py-2 rounded hover:bg-[#005f66] transition-colors"
+  >
+     ✏️ Edit Event
+  </Link>
 
-    </main>
+  {/* Delete Button */}
+  <button
+    onClick={handleDelete}
+    className="bg-red-600 text-[#fff5e6] px-4 py-2 rounded hover:bg-red-700 transition-colors"
+  >
+    Delete Event
+  </button>
+</div>
+</main>
   );
 }

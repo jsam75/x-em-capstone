@@ -6,6 +6,7 @@ import {
     getAllSubjects,
     createEvent,
     getAllOrganizations,
+    getAllVenues,
     updateEvent,
     deleteEvent 
 } from "../controllers/eventControllers.js";
@@ -19,6 +20,7 @@ router.post("/", validateEvent(false), createEvent);
 
 router.get("/subjects", getAllSubjects);
 router.get("/organizations", getAllOrganizations);
+router.get("/venues", getAllVenues);
 
 // Dynamic Route
 router.get("/:id", getEventById);
