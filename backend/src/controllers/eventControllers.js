@@ -1,11 +1,8 @@
-import { getAllEvents, getEventById as getEventByIdService } from "../services/eventService.js";
 import * as eventService from "../services/eventService.js";
 import { parsePagination } from "../utils/pagination.js";
 
 
-// GET request functions
-
-// Get all events with pagination 
+// GET all events with pagination 
 export const fetchEvents = async (req, res, next) => {
   try {   
    const { city, startDate, endDate, subject, sortBy, sortOrder } = req.query;
@@ -13,7 +10,7 @@ export const fetchEvents = async (req, res, next) => {
     // Pagination Extracted Logic
     const { limit, offset } = parsePagination(req.query);
 
-    const result = await getAllEvents({
+    const result = await eventService.getAllEvents({
       city,
       startDate,
       endDate,
@@ -38,12 +35,12 @@ console.log("Controller params:", { startDate, endDate });
   }
 };
 
-// Get single event by ID
+// GET single event by ID
 export const getEventById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const event = await getEventByIdService(id);
+    const event = await eventService.getEventById(id);
 
      if (!event) {
       return res.status(404).json({
@@ -62,7 +59,7 @@ export const getEventById = async (req, res, next) => {
  }
 };
 
-// Get all subjects for filtering
+// GET all subjects for filtering
 export async function getAllSubjects(req, res, next) {
   try {
     const subjects = await eventService.getAllSubjects();
@@ -107,9 +104,7 @@ export const createEvent = async (req, res, next) => {
   }
 };
 
-// Shared HTTP request functions: GET, POST, PUT
-
-// Organizations
+// Organizations - GET
 export const getAllOrganizations = async (req, res, next) => {
   try {
     const orgs = await eventService.getAllOrganizations();
@@ -123,7 +118,7 @@ export const getAllOrganizations = async (req, res, next) => {
   }
 };
 
-// Venues
+// Venues - GET
 export const getAllVenues = async (req, res, next) => {
 
   try {
@@ -137,6 +132,30 @@ export const getAllVenues = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+// GET an event for updating
+export const getEventForEdit = async (req, res, next) => {
+   try {
+    const { id } = req.params;
+
+    const event = await eventService.getEventForEdit(id);
+
+     if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: "Event not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      data: event
+    });
+
+  } catch (err) {
+    next (err);
+ }
 };
 
 // Update an existing event (PUT) - behaves like PATCH

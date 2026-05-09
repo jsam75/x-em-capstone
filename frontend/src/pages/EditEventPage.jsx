@@ -1,6 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+const formatForDateTimeLocal = (dateString) => {
+  const date = new Date(dateString);
+
+  const offset = date.getTimezoneOffset();
+
+  const local = new Date(
+    date.getTime() - offset * 60000
+  );
+
+  return local.toISOString().slice(0, 16);
+};
+
 export default function EditEventPage() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -11,20 +23,24 @@ export default function EditEventPage() {
   const [subjectOptions, setSubjectOptions] = useState([]);
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [organizationOptions, setOrganizationOptions] = useState([]);
+  const [venueOptions, setVenueOptions] = useState([]);
 
 
   // EFFECT #1 - fetch dropdown options
   useEffect(() => {
     async function fetchSubjects() {
-      const [subjectsRes, orgsRes] = await Promise.all([
+      const [subjectsRes, orgsRes, venuesRes] = await Promise.all([
         fetch("http://localhost:3000/api/events/subjects"),
-        fetch("http://localhost:3000/api/events/organizations")
+        fetch("http://localhost:3000/api/events/organizations"),
+        fetch("http://localhost:3000/api/events/venues")
       ]);
      const subjects = await subjectsRes.json();
      const orgs = await orgsRes.json();
+     const venues = await venuesRes.json();
 
       setSubjectOptions(subjects.data);
       setOrganizationOptions(orgs.data);
+      setVenueOptions(venues.data);
     }
 
     fetchSubjects();
@@ -34,15 +50,24 @@ export default function EditEventPage() {
   //EFFECT #2 - fetch event being edited
   useEffect(() => {
   async function loadEvent() {
-    const res = await fetch(`http://localhost:3000/api/events/${id}`);
+    const res = await fetch(`http://localhost:3000/api/events/${id}/edit`);
     const result = await res.json();
 
-    setForm(result.data);
+    console.log(result.data);
+
+    setForm({
+        ...result.data,
+    starts_at: formatForDateTimeLocal(result.data.starts_at),
+    ends_at: formatForDateTimeLocal(result.data.ends_at)
+});
+  
+    setSelectedSubjects(
+        result.data.subjectTags || []
+    );
   }
 
   loadEvent();
 }, [id]);
-
 
 
   // HANDLERS
@@ -67,7 +92,7 @@ export default function EditEventPage() {
     e.preventDefault();
 
     try {
-      const res = await fetch(`http://localhost:3000/api/${id}`, {
+      const res = await fetch(`http://localhost:3000/api/events/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"
@@ -82,7 +107,9 @@ export default function EditEventPage() {
 
       console.log("Updated:", result);
 
-      navigate(`/events/${id}`);
+      navigate(`/events/${id}`, {
+        state: {updated: true}
+      });
     } catch (err) {
       console.error("Error updating event:", err);
     }
@@ -95,6 +122,15 @@ export default function EditEventPage() {
 
    return (
     <main className="min-h-screen bg-[#0b213a] text-[#fff5e6] p-6">
+
+        {/* Back */}
+      <button
+        onClick={() => navigate("/events")}
+        className="mb-4 text-[#9fb7c9] hover:text-white"
+      >
+        ← Back to Events
+      </button>
+
       <div className="max-w-2xl mx-auto space-y-6">
 
         <h1 className="text-2xl font-bold">Update Event Details</h1>
@@ -176,9 +212,14 @@ export default function EditEventPage() {
             onChange={handleChange}
             className="w-full p-2 rounded bg-[#132b45] cursor-pointer"
         >
-        <option value={1}>Miami, FL</option>
-        <option value={2}>San Antonio, TX</option>
-        <option value={3}>Tampa, FL</option>
+            {venueOptions.map((venue) => (
+        <option
+             key={venue.venue_id}
+            value={venue.venue_id}
+        >
+            {venue.city}, {venue.state}
+        </option>
+  ))}
     </select>
 
 
@@ -210,20 +251,12 @@ export default function EditEventPage() {
             type="submit"
             className="bg-[#006d77] px-4 py-2 rounded hover:bg-[#005f66]"
           >
-            Edit Event
+            Save Changes
         </button>
 
         </form>
 
-    <button
-        type="button"
-        onClick={() => navigate(-1)}
-        className="mb-4 text-[#9fb7c9] hover:text-white"
->
-        ← Back
-</button>
-
-      </div>
+       </div>
     </main>
   );
 }

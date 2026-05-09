@@ -2,11 +2,11 @@ import { db } from "../config/db.js";
 import { groupEvents } from "../utils/groupEvents.js";
 import { normalizeSorting } from "../utils/normalizeSorting.js";
 
-// GET functions
 
-// Get All events with optional filters + pagination (GET)
-// Figure out how many events exist → pick which ones belong on this page → get 
-// their details
+//---------------
+// GET functions
+//---------------
+
 export const getAllEvents = async (filters = {}) => {
   const {  
     city, 
@@ -188,6 +188,10 @@ const [eventRows] = await db.query(dataQuery, queryValues);
   };
 }
 
+//---------------------------------------------------------------------------
+// More GET Functions - needed to separate getEventById from getEventForEdit
+//---------------------------------------------------------------------------
+
 // Get single event by ID (GET)
 export const getEventById = async (id) => {
   const query = (`
@@ -195,6 +199,9 @@ export const getEventById = async (id) => {
       e.event_id,
       e.name,
       e.starts_at,
+      e.ends_at,
+      e.organization_id,
+      e.venue_id,
       e.is_published,
       v.city,
       v.state,
@@ -215,9 +222,58 @@ export const getEventById = async (id) => {
 
     const [rows] = await db.query(query, [id]);
 
-  if (!rows.length) return null;
+    if (!rows.length) return null;
 
-  return groupEvents(rows)[0]; 
+    return groupEvents(rows)[0];
+};
+
+// GET a single event to edit
+ export const getEventForEdit = async (id) => {
+  const query = (`
+    SELECT
+      e.event_id,
+      e.name,
+      e.starts_at,
+      e.ends_at,
+      e.organization_id,
+      e.venue_id,
+      e.is_published,
+      v.city,
+      v.state,
+      t.price_cents,
+      t.capacity,
+      o.name AS organizer_name,
+      e.description,
+      s.name AS subject_name
+    FROM events e
+    LEFT JOIN venues v ON e.venue_id = v.venue_id
+    LEFT JOIN ticket_types t ON e.event_id = t.event_id
+    LEFT JOIN organizations o ON e.organization_id = o.organization_id
+    LEFT JOIN event_subjects es ON e.event_id = es.event_id
+    LEFT JOIN subjects s ON es.subject_id = s.subject_id
+    WHERE e.event_id = ?
+    ORDER BY s.name ASC
+  `);
+
+    const [rows] = await db.query(query, [id]);
+
+    if (!rows.length) return null;
+
+    const row = rows[0];
+
+  return {
+    id: row.event_id,
+    name: row.name,
+    description: row.description,
+    starts_at: row.starts_at,
+    ends_at: row.ends_at,
+    organization_id: row.organization_id,
+    venue_id: row.venue_id,
+    is_published: Boolean(row.is_published),
+    subjectTags: rows
+      .filter(r => r.subject_name)
+      .map(r => r.subject_name)
+};
 };
 
 // Get all subjects for filtering (GET)
@@ -231,8 +287,9 @@ export async function getAllSubjects() {
   return rows;
 }
 
-
+//------------------
 // CREATE functions 
+//------------------
 
 // Create Event request function (POST)
 export const createEvent = async (eventData) => {    
@@ -307,8 +364,6 @@ export const createEvent = async (eventData) => {
 };
 
 
-// Shared HTTP request functions: GET, POST, PUT
-
 //Be able to select organization for dropdown
 export async function getAllOrganizations() {
   const [rows] = await db.query(`
@@ -333,8 +388,9 @@ export const getAllVenues = async () => {
   return rows;
 };
 
-
+//-------------------
 // UPDATE functions
+//-------------------
 
 // Update Event request function (PUT)
 export const updateEvent = async (id, updates) => {
@@ -392,12 +448,49 @@ export const updateEvent = async (id, updates) => {
     return null;
  }
 
+ // Subject Tags - For Editing (PUT/PATCH)
+ if (updates.subjectTags) {
+  await db.query(
+  `
+    DELETE FROM event_subjects
+    WHERE event_id = ?
+    `,
+    [id]
+ )};
+
+ for (const subjectName of updates.subjectTags) {
+  const [subjectRows] = await db.query(
+  `
+    SELECT subject_id
+    FROM subjects
+    WHERE name = ?
+    `, 
+    [subjectName]
+  );
+
+   if (!subjectRows.length) continue;
+
+    const subjectId = subjectRows[0].subject_id;
+
+    await db.query(
+    `
+    INSERT INTO event_subjects
+    (event_id, subject_id)
+    VALUES (?, ?)
+  `,
+  [id, subjectId]
+ );
+}
+
+
   const updatedEvent = await getEventById(id);
 
   return updatedEvent;
 };
 
+//-------------------
 // DELETE functions
+//-------------------
 
 // Delete Event function (DELETE)
 export const deleteEvent = async (id) => {

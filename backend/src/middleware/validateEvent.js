@@ -15,3 +15,4 @@ export const validateEvent = (isUpdate = false) => {
     next();
   };
 };
+

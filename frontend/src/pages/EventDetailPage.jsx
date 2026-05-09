@@ -1,8 +1,9 @@
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 export default function EventDetailPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams();
 
   const [event, setEvent] = useState(null);
@@ -51,9 +52,10 @@ export default function EventDetailPage() {
   return (
     <main className="min-h-screen bg-[#0b213a] text-[#fff5e6] p-6">
 
+
       {/* Back */}
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate("/events")}
         className="mb-4 text-[#9fb7c9] hover:text-white"
       >
         ← Back to Events
@@ -62,10 +64,25 @@ export default function EventDetailPage() {
       {/* Container */}
       <div className="max-w-3xl mx-auto space-y-6">
 
+    {/* Update Successful Message */}
+        {location.state?.updated && (
+    <p className=" mb-4
+        p-3
+        rounded-lg
+        border border-[#38a169]
+        bg-[#1f4d36]
+        text-[#e6fff2]
+        font-semibold
+        shadow-md">
+          Event updated successfully.
+    </p>
+)}
+
         {/* Header */}
         <section className="bg-[#132b45] p-4 rounded">
           <h1 className="text-3xl font-bold">{event.title}</h1>
           <p className="text-sm text-[#9fb7c9]">{event.date}</p>
+           <p className="text-sm text-[#9fb7c9]">{event.timeRange}</p>
           <p className="text-sm text-[#9fb7c9]">{event.location}</p>
         </section>
 
@@ -108,6 +125,7 @@ export default function EventDetailPage() {
      ✏️ Edit Event
   </Link>
 
+   
   {/* Delete Button */}
   <button
     onClick={handleDelete}

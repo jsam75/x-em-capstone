@@ -1,7 +1,8 @@
 // Routes for Events - still holds subjects, but will evolve to be more event-focused
 import express from "express";
 import { 
-    fetchEvents, 
+    fetchEvents,
+    getEventForEdit, 
     getEventById, 
     getAllSubjects,
     createEvent,
@@ -23,8 +24,8 @@ router.get("/organizations", getAllOrganizations);
 router.get("/venues", getAllVenues);
 
 // Dynamic Route
+router.get("/:id/edit", getEventForEdit);
 router.get("/:id", getEventById);
-//router.put("/:id", updateEvent);
 router.delete("/:id", deleteEvent);
 router.put("/:id", validateEvent(true), updateEvent);
 
