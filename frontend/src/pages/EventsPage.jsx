@@ -96,9 +96,14 @@ function clearFilters() {
   return (
      <main className="min-h-screen bg-[#0b213a] p-6">
         <div className="max-w-5xl mx-auto">
-      <h1 className="text-3xl font-semibold text-[#fff5e6] mb-6 tracking-wide">
+      <h1 className="text-5xl 
+          tracking-[0.10em]
+          text-[#fff5e6] 
+          mb-8 
+          drop-shadow-[0_0_8px_rgba(255,245,230,0.15)]"
+       style={{ fontFamily: "Nexus" }}>
           X_EM Events
-      </h1>
+    </h1>
 
   <EventFilters
   city={city}
@@ -127,7 +132,7 @@ function clearFilters() {
 
 <button
   onClick={() => navigate("/events/new")}
-  className="mb-4 bg-[#006d77] px-4 py-2 rounded hover:bg-[#005f66]"
+  className="mb-4 bg-[#006d77] text-[#fff5e6] px-4 py-2 rounded hover:bg-[#005f66]"
 >
   + Create Event
 </button>
