@@ -79,7 +79,7 @@ function EventFilters({
   hover:border-[#006d77] hover:bg-[#132b45]
   focus-within:border-[#006d77] focus-within:bg-[#132b45]
   cursor-pointer">
-    {subjectOptions.map((s) => (
+    {subjectOptions?.map((s) => (
       <label key={s.name} className="flex items-center gap-2 text-[#fff5e6] p-1 rounded
              hover:bg-[#0b213a] cursor-pointer">
         <input

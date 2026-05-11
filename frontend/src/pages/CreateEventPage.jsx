@@ -4,7 +4,10 @@ import { useNavigate } from "react-router-dom";
 export default function CreateEventPage() {
   const navigate = useNavigate();
 
-    // STATE
+//=============
+// STATE
+//=============
+
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -20,8 +23,10 @@ export default function CreateEventPage() {
   const [organizationOptions, setOrganizationOptions] = useState([]);
   const [venueOptions, setVenueOptions] = useState([]);
 
+//===========
+// EFFECT 
+//===========
 
-  // EFFECT (runs once on load)
   useEffect(() => {
     async function fetchSubjects() {
       const [subjectsRes, orgsRes, venuesRes] = await Promise.all([
@@ -41,8 +46,10 @@ export default function CreateEventPage() {
     fetchSubjects();
   }, []);
 
+//==============
+// HANDLERS
+//==============
 
-  // HANDLERS
     const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -60,12 +67,11 @@ export default function CreateEventPage() {
     );
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:3000/api/events", {
+      await fetch("http://localhost:3000/api/events", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -76,17 +82,16 @@ export default function CreateEventPage() {
         })
       });
 
-      const result = await res.json();
-
-      console.log("Created:", result);
-
       navigate("/");
     } catch (err) {
       console.error("Error creating event:", err);
     }
   };
 
-   
+//===============
+// MAIN RENDER
+//===============
+
   return (
     <main className="min-h-screen bg-[#0b213a] text-[#fff5e6] p-6">
       <div className="max-w-2xl mx-auto space-y-6">
@@ -194,7 +199,7 @@ export default function CreateEventPage() {
             onChange={handleChange}
             className="w-full p-2 rounded bg-[#132b45] text-white border border-[#9fb7c9] [color-scheme:dark]
             hover:border-[#006d77] hover:bg-[#132b45]
-            focus:outline-none focus:ring-2 focus:ring-[#006d77] cursor pointer"
+            focus:outline-none focus:ring-2 focus:ring-[#006d77] cursor-pointer"
             required
           />
 

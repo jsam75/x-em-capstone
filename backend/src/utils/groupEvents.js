@@ -1,11 +1,11 @@
 export const groupEvents = (rows) => {
   const eventsMap = new Map();
 
-  console.log(rows.map(r => r.event_id));
-
+// Normalize event rows into frontend-friendly objects
   rows.forEach((row) => {
     if (!eventsMap.has(row.event_id)) {
 
+      // Time Formatting
       const startTime = row.starts_at
              ? new Date(row.starts_at).toLocaleTimeString(
              "en-US",
@@ -44,7 +44,7 @@ export const groupEvents = (rows) => {
                   : null,
         city:   row.city || null,
         state:  row.state || null,
-        price:  row.price_cents ? row.price_cents / 100 : null,
+        price:  row.price_cents !== null ? row.price_cents / 100 : null,
         capacity: row.capacity || null,
         organizerName: row.organizer_name || null,
         description: row.description || null,

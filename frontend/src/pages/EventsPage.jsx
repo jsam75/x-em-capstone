@@ -8,7 +8,11 @@ import ActiveFilters from "../components/ActiveFilters";
 
 function EventsPage() {
     const navigate = useNavigate();
+
+  //=======================
   // STATE
+  //=======================
+
   const [events, setEvents] = useState([]);
   const [city, setCity] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -21,12 +25,11 @@ function EventsPage() {
   const [meta, setMeta] = useState({});
   const [offset, setOffset] = useState(0);
   
-  // FETCH EVENTS
+  //===================
+  // DATA FETCHING
+  //===================
     async function fetchEvents() {
 
-      console.log("startDate:", startDate);
-      console.log("endDate:", endDate);
-     
     try {
       const params = new URLSearchParams();
 
@@ -50,8 +53,6 @@ function EventsPage() {
         queryString ? `?${queryString}` : ""
       }`;
 
-      console.log("Fetching:", url);
-
       const res = await fetch(url);
       const result = await res.json();
 
@@ -63,7 +64,10 @@ function EventsPage() {
     }
   }
 
- // EFFECT: RUN ON FILTER CHANGE
+//========================
+// EFFECTS
+//========================
+
   useEffect(() => {
     fetchEvents();
   }, [city, startDate, endDate, subjects, sortBy, sortOrder, offset]);
@@ -74,14 +78,15 @@ function EventsPage() {
     const res = await fetch("http://localhost:3000/api/subjects");
     const result = await res.json();
 
-    console.log("Subjects API result:", result);
-    console.log("subjectOptions state:", subjectOptions);
-
     setSubjectOptions(result.data);
   }
 
   loadSubjects();
 }, []);
+
+//================
+// FILTER
+//================
 
 function clearFilters() {
   setCity("");
@@ -92,7 +97,9 @@ function clearFilters() {
   setOffset(0); // Reset pagination when clearing filters
 }
 
-  // RENDER
+//==============
+// RENDER
+//==============
   return (
      <main className="min-h-screen bg-[#0b213a] p-6">
         <div className="max-w-5xl mx-auto">

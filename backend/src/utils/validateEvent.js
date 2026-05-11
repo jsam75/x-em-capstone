@@ -25,6 +25,7 @@ export function validateEventInput(data, isUpdate = false) {
   // -----------------------------------------------------------------------
   if (
   name !== undefined &&
+  typeof name === "string" &&
   name.trim() === ""
 ) {
   errors.push("name cannot be empty");

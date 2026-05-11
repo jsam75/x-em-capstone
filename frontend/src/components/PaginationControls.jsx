@@ -7,7 +7,15 @@ function PaginationControls({ meta, setOffset }) {
       <button
         disabled={!meta.hasPrev}
         onClick={() => setOffset(meta.offset - meta.limit)}
-        className="px-3 py-1 bg-gray-300 text-black rounded disabled:opacity-50"
+        className="
+                   px-3 py-1
+                   rounded
+                   bg-[#006d77]
+                   text-[#fff5e6]
+                   hover:bg-[#005f66]
+                   transition-colors
+                   disabled:opacity-50
+                   disabled:cursor-not-allowed"
       >
         ← Prev
       </button>
@@ -19,7 +27,14 @@ function PaginationControls({ meta, setOffset }) {
       <button
         disabled={!meta.hasNext}
         onClick={() => setOffset(meta.offset + meta.limit)}
-        className="px-3 py-1 bg-gray-300 text-black rounded disabled:opacity-50"
+        className=" px-3 py-1
+                    rounded
+                    bg-[#006d77]
+                    text-[#fff5e6]
+                    hover:bg-[#005f66]
+                    transition-colors
+                    disabled:opacity-50
+                    disabled:cursor-not-allowed"
       >
         Next →
       </button>

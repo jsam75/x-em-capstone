@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function NotFoundPage() {
   return (
     <main className="min-h-screen bg-[#0b213a] p-6">
@@ -15,8 +17,8 @@ export default function NotFoundPage() {
           The requested route does not exist.
         </p>
 
-        <a
-          href="/events"
+        <Link
+          to="/events"
           className="
             inline-block
             px-6 py-3
@@ -29,7 +31,7 @@ export default function NotFoundPage() {
           "
         >
           Back to Events
-        </a>
+        </Link>
 
       </div>
     </main>

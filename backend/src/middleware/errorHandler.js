@@ -1,5 +1,5 @@
 export const errorHandler = (err, req, res, next) => {
-  console.error(err);
+  console.error("Server Error:", err.message);
 
   if (err.code === "ER_DUP_ENTRY") {
     return res.status(400).json({

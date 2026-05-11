@@ -2,6 +2,10 @@ import * as eventService from "../services/eventService.js";
 import { parsePagination } from "../utils/pagination.js";
 
 
+//==============================
+// Event Retrieval
+//==============================
+
 // GET all events with pagination 
 export const fetchEvents = async (req, res, next) => {
   try {   
@@ -22,8 +26,6 @@ export const fetchEvents = async (req, res, next) => {
     });
 
 
-console.log("Controller params:", { startDate, endDate });
-
   res.json({
       success: true,
       data: result.data,
@@ -31,7 +33,7 @@ console.log("Controller params:", { startDate, endDate });
     });
 
   } catch (err) {
-    next (err);
+    next(err);
   }
 };
 
@@ -55,19 +57,37 @@ export const getEventById = async (req, res, next) => {
     });
 
   } catch (err) {
-    next (err);
+    next(err);
  }
 };
 
-// GET all subjects for filtering
-export async function getAllSubjects(req, res, next) {
-  try {
-    const subjects = await eventService.getAllSubjects();
-    res.json({ success: true, data: subjects });
+// GET an event for updating
+export const getEventForEdit = async (req, res, next) => {
+   try {
+    const { id } = req.params;
+
+    const event = await eventService.getEventForEdit(id);
+
+     if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: "Event not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      data: event
+    });
+
   } catch (err) {
-    next (err);
-  };
-}
+    next(err);
+ }
+};
+
+//=======================
+// Event Mutations
+//=======================
 
 // Create a new event (POST)
 export const createEvent = async (req, res, next) => {
@@ -100,62 +120,8 @@ export const createEvent = async (req, res, next) => {
     });
 
   } catch (err) {
-    next (err);
-  }
-};
-
-// Organizations - GET
-export const getAllOrganizations = async (req, res, next) => {
-  try {
-    const orgs = await eventService.getAllOrganizations();
-
-    res.json({
-      success: true,
-      data: orgs
-    });
-  } catch (err) {
     next(err);
   }
-};
-
-// Venues - GET
-export const getAllVenues = async (req, res, next) => {
-
-  try {
-    const venues = await eventService.getAllVenues();
-
-    res.json({
-      success: true,
-      data: venues
-    });
-
-  } catch (err) {
-    next(err);
-  }
-};
-
-// GET an event for updating
-export const getEventForEdit = async (req, res, next) => {
-   try {
-    const { id } = req.params;
-
-    const event = await eventService.getEventForEdit(id);
-
-     if (!event) {
-      return res.status(404).json({
-        success: false,
-        message: "Event not found"
-      });
-    }
-
-    res.json({
-      success: true,
-      data: event
-    });
-
-  } catch (err) {
-    next (err);
- }
 };
 
 // Update an existing event (PUT) - behaves like PATCH
@@ -203,6 +169,54 @@ export const deleteEvent = async (req, res, next) => {
     });
 
   } catch (err) {
-    next (err);
+    next(err);
      }
 };
+
+//=============================
+// Lookup / Reference Data
+//=============================
+
+// GET all subjects for filtering
+export async function getAllSubjects(req, res, next) {
+  try {
+    const subjects = await eventService.getAllSubjects();
+    res.json({ success: true, data: subjects });
+  } catch (err) {
+    next(err);
+  };
+}
+
+
+// Organizations - GET
+export const getAllOrganizations = async (req, res, next) => {
+  try {
+    const orgs = await eventService.getAllOrganizations();
+
+    res.json({
+      success: true,
+      data: orgs
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Venues - GET
+export const getAllVenues = async (req, res, next) => {
+
+  try {
+    const venues = await eventService.getAllVenues();
+
+    res.json({
+      success: true,
+      data: venues
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+

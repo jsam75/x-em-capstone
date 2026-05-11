@@ -117,23 +117,11 @@ conditions.push(`e.starts_at >= CURRENT_DATE`);
     };
   }
  
-if (!eventIds.length === 0) {
-  return {
-    data: [],
-    pagination: {
-      total,
-      limit,
-      offset,
-      hasNext: false,
-      hasPrev: offset > 0
-    }
-  };
-}
 
- // -----------------------------------
-  // RETRIEVAL PHASE (Full Event Data)
-  // -----------------------------------
- // Build placeholders
+// -----------------------------------
+// RETRIEVAL PHASE (Full Event Data)
+// -----------------------------------
+   // Build placeholders
  const placeholders = eventIds.map(() => "?").join(", ");
 
 // Build query with expanded IN clause
@@ -188,9 +176,9 @@ const [eventRows] = await db.query(dataQuery, queryValues);
   };
 }
 
-//---------------------------------------------------------------------------
-// More GET Functions - needed to separate getEventById from getEventForEdit
-//---------------------------------------------------------------------------
+//---------------------------------------------------------
+// Separate retrieval models for display vs edit workflows
+//---------------------------------------------------------
 
 // Get single event by ID (GET)
 export const getEventById = async (id) => {

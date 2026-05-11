@@ -2,6 +2,11 @@ import { useNavigate, useParams, Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 export default function EventDetailPage() {
+
+  //===========
+  // STATE 
+  //===========
+
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
@@ -10,6 +15,9 @@ export default function EventDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+//=================
+// DATA FETCHING
+//=================
   useEffect(() => {
     async function fetchEvent() {
       try {
@@ -28,11 +36,17 @@ export default function EventDetailPage() {
     fetchEvent();
   }, [id]);
 
-  // EARLY RETURNS 
+//================
+// RENDER STATES
+//================
+  
   if (loading) return <p className="p-6">Loading event...</p>;
   if (error) return <p className="p-6">Something went wrong.</p>;
   if (!event) return <p className="p-6">Event not found.</p>;
 
+//=====================
+// DELETE WORKFLOW
+//=====================
  const handleDelete = async () => {
   const confirmDelete = window.confirm("Delete this event?");
 
@@ -48,6 +62,10 @@ export default function EventDetailPage() {
     console.error("Error deleting event:", err);
   }
 };
+
+//================
+// MAIN RENDER
+//================
 
   return (
     <main className="min-h-screen bg-[#0b213a] text-[#fff5e6] p-6">

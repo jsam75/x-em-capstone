@@ -1,4 +1,7 @@
-// Routes for Events - still holds subjects, but will evolve to be more event-focused
+// Event-centric routes
+// Currently also includes supporting lookup routes
+// (subjects, venues, organizations) for Phase 1 simplicity
+
 import express from "express";
 import { 
     fetchEvents,

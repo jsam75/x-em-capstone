@@ -1,11 +1,11 @@
 export function normalizeSorting(sortBy, sortOrder) {
-  const allowedSortFields = [
+  const ALLOWED_SORT_FIELDS = [
     "starts_at",
     "ends_at",
     "name"
   ];
 
-  const safeSortBy = allowedSortFields.includes(sortBy)
+  const safeSortBy = ALLOWED_SORT_FIELDS.includes(sortBy)
     ? sortBy
     : "starts_at";
 

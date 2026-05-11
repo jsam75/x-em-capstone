@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+
+//=====================
+// DATETIME FORMATTING
+//======================
+
 const formatForDateTimeLocal = (dateString) => {
   const date = new Date(dateString);
 
@@ -17,7 +22,11 @@ export default function EditEventPage() {
     const { id } = useParams();
     const navigate = useNavigate();
 
-  // STATE - Hydrated async state because an existing event is being edited
+//==============
+// STATE
+//==============
+
+// STATE - Hydrated async state because an existing event is being edited
   const [form, setForm] = useState(null);
 
   const [subjectOptions, setSubjectOptions] = useState([]);
@@ -25,6 +34,9 @@ export default function EditEventPage() {
   const [organizationOptions, setOrganizationOptions] = useState([]);
   const [venueOptions, setVenueOptions] = useState([]);
 
+//=============
+// EFFECTS
+//=============
 
   // EFFECT #1 - fetch dropdown options
   useEffect(() => {
@@ -53,8 +65,6 @@ export default function EditEventPage() {
     const res = await fetch(`http://localhost:3000/api/events/${id}/edit`);
     const result = await res.json();
 
-    console.log(result.data);
-
     setForm({
         ...result.data,
     starts_at: formatForDateTimeLocal(result.data.starts_at),
@@ -69,8 +79,10 @@ export default function EditEventPage() {
   loadEvent();
 }, [id]);
 
+//===========
+// HANDLERS
+//===========
 
-  // HANDLERS
     const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -92,7 +104,7 @@ export default function EditEventPage() {
     e.preventDefault();
 
     try {
-      const res = await fetch(`http://localhost:3000/api/events/${id}`, {
+      await fetch(`http://localhost:3000/api/events/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"
@@ -103,22 +115,25 @@ export default function EditEventPage() {
         })
       });
 
-      const result = await res.json();
-
-      console.log("Updated:", result);
-
       navigate(`/events/${id}`, {
         state: {updated: true}
       });
     } catch (err) {
-      console.error("Error updating event:", err);
+      console.error("Error deleting event", err);
     }
   };
+
+//======================
+// RENDER STATES
+//======================
 
   if (!form) {
   return <p>Loading...</p>;
 }
 
+//======================
+// MAIN RENDER
+//======================
 
    return (
     <main className="min-h-screen bg-[#0b213a] text-[#fff5e6] p-6">
@@ -242,7 +257,7 @@ export default function EditEventPage() {
             onChange={handleChange}
             className="w-full p-2 rounded bg-[#132b45] text-white border border-[#9fb7c9] [color-scheme:dark]
             hover:border-[#006d77] hover:bg-[#132b45] cursor-pointer
-            focus:outline-none focus:ring-2 focus:ring-[#006d77] cursor pointer"
+            focus:outline-none focus:ring-2 focus:ring-[#006d77] cursor-pointer"
             required
           />
 
