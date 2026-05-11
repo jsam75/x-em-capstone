@@ -1,3 +1,6 @@
+> Historical Note  
+> This document reflects early database modeling and schema planning work created during the initial architectural phase of X_EM development (late 2025 / early 2026). Some assumptions and planned features evolved significantly during later stabilization and Phase 1 scoping decisions.
+
 # X_EM Data Model Mapping
 
 This document maps frontend concepts (UI/API) to database structure. (Meaning- this is meant for how humans think, not how MySQL builds it)

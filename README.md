@@ -1,151 +1,511 @@
-# X_EM - Event Management Platform
+# X_EM – Backend-First Event Management Platform
 
-## Overview
-X_EM is a mobile-first event discovery and management platform designed for educators hosting
-and attending professional development conferences and enrichment events.
+## Phase 1 Capstone Build
 
-The platform supports two primary user roles:
-- Event Organizers who create, publish and manage events
-- Attendees who search, register and purchase tickets for events
-
-The design philosophy emphasizes a discreet, professional, and highly user-friendly experience
-focused on clarity, efficiency, and trust.
+**Last Updated:** May 11, 2026
 
 ---
 
-## Problem Statement
-Educators often rely on fragmented systems to discover conferences, manage registrations, and 
-track attendance. 
-X_EM provides a centralized platform that simplifies event creation, discovery, registration, and ticketing in one streamlined workflow.
+# Overview
+
+X_EM is a backend-first event management platform designed to support:
+
+* event discovery,
+* organizer workflows,
+* relational CRUD operations,
+* and operational event management workflows.
+
+The project began as a much larger concept involving:
+
+* organizer/admin systems,
+* ticket purchasing,
+* dashboards,
+* authentication,
+* analytics,
+* and marketplace-style platform behavior.
+
+As development progressed, the project intentionally evolved into a:
+
+> lightweight Phase 1 operational platform focused on backend architecture and relational workflow design.
+
+This decision allowed the project to prioritize:
+
+* backend engineering fundamentals,
+* relational data modeling,
+* service/controller separation,
+* filtering/sorting/pagination,
+* many-to-many relationships,
+* and frontend/backend orchestration.
+
+The frontend intentionally remains:
+
+> a thin operational interface layered over backend functionality.
 
 ---
 
-## Target Users (Personas)
+# Project Goals
 
-## Organizer
-Goal: Quickly create and launch events, make them discoverable, and track ticket sales.
+The primary goals of Phase 1 were:
 
-Core tasks:
-- Create and publish events
-- Manage registrations
-- Track ticket sales and capacity
+* Build a relational backend using Node.js, Express, and MySQL
+* Demonstrate backend-first CRUD architecture
+* Implement filtering, sorting, and pagination workflows
+* Explore many-to-many relationship handling
+* Practice frontend/backend orchestration
+* Create a stable operational workflow UI
+* Learn architectural tradeoffs and stabilization practices
 
-## Attendee
-Goal: Easily discover relevant events, register, pay and receive confirmation.
+This project intentionally prioritized:
 
-Core tasks:
-- Search and filter events by date, location, and subject
-- View event details
-- Register and pay securely
-- Receive confirmation via email or QR code
-
----
-
-## Core Features (MVP)
-
-## Organizer
-- Create and publish events
-- Set date, location, subject tags, capacity, and pricing
-- View registrations and ticket sales dashboard
-
-## Attendee
-- Browse and search events
-- Filter by date, location, and subject
-- Register for events
-- Secure payment processing
-- Confirmation via email / QR code
+* architectural clarity
+  over:
+* feature quantity.
 
 ---
 
-## UX & Product Design
+# Tech Stack
 
-- Mobile-first, single-column layout
-- Section-based landing page design
-- Discreet, professional visual style
+## Frontend
 
-Artifacts:
-- User Flow Diagram
-- Wireframes (planned for future)
+* React
+* Vite
+* React Router
+* Tailwind CSS
 
-## User Flow Diagram (v1)
+## Backend
 
-X_EM begins at a shared Landing page and branches based on user intent.
+* Node.js
+* Express
+* MySQL
+* mysql2/promise
 
-- Attendees may browse and search events without authentication.
-  Account creation is required only at the point of registration.
+## Development Tools
 
-- Organizers authenticate early in order to create, publish, and manage events.
-
-This MVP flow prioritizes clarity, Low friction, and trust for both user roles.
-
-![User Flow Diagram] (docs/user-flow-diagram-v1.png)
-
-Editable version:
-[Figma- User Flow v1] https://www.figma.com/board/eYNI8tXfZihbQY2PXWYBiA/X_EM-User-Flow-v1?node-id=0-1&p=f&t=flkKe4dEtCjg6fSq-0
+* VS Code
+* Git / GitHub
+* Insomnia
+* Nodemon
+* dotenv
 
 ---
 
-## Architecture Plan (Draft)
+# Current Phase 1 Features
 
-Frontend:
-- React (Vite)
-- React Router (planned)
-- CSS Modules or Tailwind (TBD)
+## Backend Features
 
-Backend (planned):
-- Node / Express
-- Database: MySQL
-
----
-
-## Architecture Docs
-
-Detailed architectural documentation is maintained in /docs/architecture to guide system design and support future scalability.
-
-- [System Architecture - Conceptual v1] 
-    (docs/architecture/system-architecture-conceptual-v1.md)
-
-- [Business Rules -v1] 
-    (docs/architecture/business-rules-v1.md)
-
-- [API Surface - Conceptual v1] 
-    (docs/architecture/api-surface-v1.md)
-
-- [Data Model - Conceptual v1] 
-    (docs/architecture/data-model-v1.md)
-
-- [Engineering Guardrails]
-    (docs/architecture/engineering-guardrails-v1.md)
+* RESTful event API
+* CRUD operations for events
+* Filtering
+* Sorting
+* Pagination
+* Relational JOIN queries
+* Many-to-many subject relationships
+* Validation middleware
+* Centralized error handling
+* Service/controller separation
+* Utility-based transformation logic
 
 ---
 
-## Development Phases
+## Frontend Features
 
-### Phase 1 - UX & Planning
-- Define personas
-- Create user flow diagram
-- Design landing page layout
-
-### Phase 2 - Frontend MVP
-- Landing page
-- Event browsing & filtering
-- Registration flow
-
-### Phase 3 - Backend & Auth
-- Organizer accounts
-- Event creation & publishing
-- Registration persistence
-
-## Phase 4 - Payments & Polish
-- Payment integration
-- Email / QR confirmation
-- UI refinement
+* Event discovery page
+* Event detail workflow
+* Create event workflow
+* Edit event workflow
+* Delete event workflow
+* Filtering UI
+* Pagination UI
+* Active filter visualization
+* Route recovery (404 page)
+* Operational CRUD interface
 
 ---
 
-## Setup Instructions
+# Architectural Philosophy
+
+## Backend-First Development
+
+X_EM intentionally evolved into a backend-first platform.
+
+The backend architecture became the primary focus of the project because:
+
+* relational complexity,
+* API orchestration,
+* and data modeling
+
+became the most important engineering challenges in the system.
+
+The frontend exists primarily to:
+
+* visualize workflows,
+* consume backend APIs,
+* and demonstrate operational CRUD behavior.
+
+---
+
+## Thin Frontend Philosophy
+
+The frontend intentionally avoids:
+
+* heavy state management libraries,
+* large frontend abstractions,
+* and unnecessary complexity.
+
+The application currently uses:
+
+* explicit fetch workflows,
+* page-level orchestration,
+* and lightweight presentation components.
+
+This keeps the architecture:
+
+* understandable,
+* operational,
+* and proportional to project scope.
+
+---
+
+## Intentional Phase 1 Scope
+
+Many larger features were intentionally deferred, including:
+
+* authentication systems
+* advanced permissions
+* ticket purchasing
+* dashboards
+* notifications
+* analytics
+* organizer management systems
+
+This was done intentionally to:
+
+* avoid uncontrolled project sprawl,
+* stabilize backend architecture,
+* and strengthen core relational CRUD workflows first.
+
+---
+
+# Major Engineering Concepts Explored
+
+## Relational Data Modeling
+
+The backend heavily explores:
+
+* foreign keys
+* lookup tables
+* relational joins
+* many-to-many relationships
+* normalization
+* and relational workflow orchestration.
+
+---
+
+## Presentation Models vs Editable Resource Models
+
+One major architectural lesson involved separating:
+
+* frontend presentation models
+  from:
+* editable backend resource models.
+
+Display pages require:
+
+* formatted data,
+* normalized labels,
+* and presentation-friendly responses.
+
+Edit workflows require:
+
+* raw IDs,
+* editable datetime values,
+* and relational synchronization.
+
+---
+
+## Backend Transformation Logic
+
+The backend uses transformation utilities such as:
+
+```txt
+groupEvents()
+```
+
+to:
+
+* normalize JOIN-heavy query results,
+* aggregate subject relationships,
+* and simplify frontend rendering behavior.
+
+This significantly reduced frontend complexity.
+
+---
+
+## Pagination + Filtering Complexity
+
+Pagination became significantly more complex once:
+
+* many-to-many relationships,
+* filtering,
+* and relational JOINs
+
+were introduced.
+
+The backend evolved into:
+
+* multi-query pagination orchestration
+  using:
+* count queries
+* ID queries
+* and retrieval queries
+
+to prevent:
+
+* duplicate rows
+* and broken pagination behavior.
+
+---
+
+# Current Project Structure
+
+```txt
+X_EM/
+├── backend/
+├── frontend/
+├── db/
+├── docs/
+└── README.md
+```
+
+---
+
+# Future Phase 2 Direction
+
+Potential future expansions include:
+
+* authentication and authorization
+* organizer/admin roles
+* ticket purchasing workflows
+* venue CRUD management
+* dynamic lookup creation
+* dashboard systems
+* analytics
+* notification systems
+* improved form abstraction
+* reusable frontend form components
+
+---
+
+## Lookup Workflow Expansion
+
+Current Phase 1 workflows intentionally use:
+
+* controlled dropdown selections
+  for:
+* subjects
+* organizers
+* venues
+* and cities
+
+to preserve:
+
+* relational integrity
+* and simplify CRUD orchestration.
+
+Future phases may evolve toward:
+
+* dynamic lookup creation
+* hybrid dropdown + free-text workflows
+* and user-managed relational entities.
+
+Example future workflows:
+
+* “Create New Venue”
+* autocomplete + create behavior
+* dynamic relational hydration
+
+---
+
+# Lessons Learned
+
+One of the most important lessons from the project:
+
+> Smaller, stabilized architecture is stronger than uncontrolled feature growth.
+
+The project improved significantly once development focused on:
+
+* architectural clarity,
+* relational workflows,
+* stabilization,
+* and intentional scope management.
+
+Additional architectural reflections can be found in:
+
+```txt
+docs/lessons_learned.md
+```
+
+---
+
+# Development Status
+
+Current Status:
+
+> Phase 1 Stabilized CRUD Platform
+
+The system now demonstrates:
+
+* relational CRUD architecture
+* filtering/sorting/pagination
+* backend/frontend orchestration
+* many-to-many synchronization
+* operational workflow UX
+* and backend-first application structure
+
+while remaining intentionally scoped and maintainable.
+
+---
+
+# API Endpoint Summary
+
+## Events
+
+| Method | Endpoint               | Description                                            |
+| ------ | ---------------------- | ------------------------------------------------------ |
+| GET    | `/api/events`          | Get all events with filtering, sorting, and pagination |
+| GET    | `/api/events/:id`      | Get single event details                               |
+| GET    | `/api/events/:id/edit` | Get editable event resource data                       |
+| POST   | `/api/events`          | Create a new event                                     |
+| PUT    | `/api/events/:id`      | Update an existing event                               |
+| DELETE | `/api/events/:id`      | Delete an event                                        |
+
+---
+
+## Lookup Data
+
+| Method | Endpoint             | Description                 |
+| ------ | -------------------- | --------------------------- |
+| GET    | `/api/subjects`      | Retrieve available subjects |
+| GET    | `/api/organizations` | Retrieve organizations      |
+| GET    | `/api/venues`        | Retrieve venues             |
+
+
+---
+
+# Author Notes
+
+This project was developed as part of a software engineering boot camp capstone while intentionally emphasizing:
+
+* backend engineering growth,
+* architectural reasoning,
+* and operational workflow design.
+
+The project is not intended to represent a finished production SaaS platform.
+
+Instead, it represents:
+
+> a stabilized Phase 1 backend-first foundation designed for future expansion and architectural learning.
+
+---
+
+
+# Getting Started
+
+## Clone Repository
+
+```bash
+git clone https://github.com/jsam75/x-em-capstone
+cd X_EM
+```
+
+---
+
+# Backend Setup
+
+## Navigate To Backend
+
+```bash
+cd backend
+```
+
+## Install Dependencies
 
 ```bash
 npm install
+```
+
+## Create Environment Variables
+
+Create a `.env` file inside:
+
+```txt
+backend/
+```
+
+```env
+PORT=3000
+
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=x_em
+```
+
+## Start Backend Server
+
+```bash
 npm run dev
+```
+
+Backend runs on:
+
+```txt
+http://localhost:3000
+```
+
+---
+
+# Frontend Setup
+
+## Navigate To Frontend
+
+```bash
+cd frontend
+```
+
+## Install Dependencies
+
+```bash
+npm install
+```
+
+## Start Frontend
+
+```bash
+npm run dev
+```
+
+Frontend runs on:
+
+```txt
+http://localhost:5173
+```
+
+---
+
+# Database Setup
+
+Database scripts are located in:
+
+```txt
+db/
+```
+
+Core files include:
+
+* `x_em_schema_v1.sql`
+* `seed.sql`
+
+Import the schema and seed data into MySQL before running the application.
+
 

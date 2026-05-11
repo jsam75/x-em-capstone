@@ -1,3 +1,6 @@
+> Historical Note  
+> This document reflects early database modeling and schema planning work created during the initial architectural phase of X_EM development (late 2025 / early 2026). Some assumptions and planned features evolved significantly during later stabilization and Phase 1 scoping decisions.
+
 # Model Verification
 
 This document demonstrates that the relational schema supports the UI data requirements.
