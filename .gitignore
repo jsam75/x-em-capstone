@@ -2,8 +2,7 @@
 node_modules/
 
 # production builds
-dist/
-dist-ssr/
+
 
 # env files (keep secrets out of git)
 .env

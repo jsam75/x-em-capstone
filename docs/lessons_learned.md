@@ -379,7 +379,7 @@ Extracting too early would have:
 
 Keeping workflows explicit improved:
 
-* coming back to later,
+* being able to come back to later,
 * debugging,
 * and stabilization.
 
@@ -570,3 +570,113 @@ The final Phase 1 system now demonstrates:
 * and intentional architectural restraint
 
 without collapsing under unnecessary complexity.
+
+---
+
+# 13. Deployment Architecture 
+
+### Initial Assumption
+
+The initial assumption was that the X_EM capstone should be deployed monolithically, per the project instructions.
+
+Additional research was conducted through Stack Overflow discussions and deployment architecture threads comparing:
+
+- monolithic deployments,
+- separated frontend/backend deployments,
+- Heroku-style unified hosting,
+- Render,
+- Railway,
+- and containerized deployment workflows using Docker.
+
+Briefly considered that separate deployment would appear more technically advanced and therefore more professionally aligned with real-world engineering practices.
+
+---
+
+### Final Decision
+
+The final decision was to deploy X_EM monolithically using a single Railway deployment for the operational Phase 1 capstone release.
+
+This decision was made because:
+
+- the capstone scope prioritized stability and architectural understanding over distributed infrastructure complexity,
+- and monolithic deployment significantly reduced operational friction for a first deployment experience.
+
+The deployed application still preserves the internal frontend/backend architectural separation within the codebase:
+
+```txt
+frontend/
+backend/
+docs/
+db/
+```
+
+---
+
+### Major Lessons
+
+One of the major lessons learned during the deployment planning phase was that:
+
+> application architecture and deployment architecture are not the same decision.
+
+X_EM retained:
+
+- service/controller separation,
+- API-first thinking,
+- modular backend organization,
+- relational workflow orchestration,
+- and frontend/backend boundaries
+
+without requiring distributed deployment infrastructure during the capstone phase.
+
+---
+
+A monolithic deployment generally refers to deploying the frontend and backend together as a single application deployment unit. In most real-world systems, the database still remains a separate infrastructure service even when the application itself is deployed monolithically.
+
+Research during deployment planning clarified that Railway initially appears to function as an “all-in-one” deployment platform because it provisions the application service and database service within a unified project interface. However, under the hood, Railway still operates using separate application and database services connected through internal networking and environment configuration.
+
+The primary difference is that Railway automates much of the infrastructure orchestration process, including:
+
+- service provisioning,
+- internal networking,
+- environment variable injection,
+- and database connection configuration.
+
+This helped reinforce the understanding that:
+
+> modern deployment platforms often abstract infrastructure complexity while still operating on the same underlying architectural principles.
+
+---
+
+Additional research into Docker and containerization clarified that modern cloud deployment platforms frequently run applications inside isolated containerized environments even when developers are not directly managing Docker themselves.
+
+Research into containerization demonstrated that containers help standardize deployment environments by packaging:
+
+- application code,
+- runtime dependencies,
+- configuration,
+- and startup instructions
+
+into reproducible isolated execution environments.
+
+This helped reinforce the understanding that:
+
+> deployment complexity exists on a spectrum.
+
+The project intentionally prioritized:
+
+- operational clarity,
+- deployment stability,
+- and educational understanding
+
+before introducing more advanced infrastructure concerns such as:
+
+- multi-service orchestration,
+- distributed deployments,
+- container networking,
+- Kubernetes,
+- or independently scaled frontend/backend systems.
+
+The deployment strategy ultimately aligned with the broader Phase 1 philosophy of the project:
+
+> stabilize the operational CRUD platform first, then evolve infrastructure complexity later as the platform grows.
+

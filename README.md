@@ -237,7 +237,7 @@ to:
 * aggregate subject relationships,
 * and simplify frontend rendering behavior.
 
-This significantly reduced frontend complexity.
+This significantly reduced frontend complexity by keeping business logic in the backend.
 
 ---
 
