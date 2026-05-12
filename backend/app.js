@@ -20,7 +20,7 @@ app.use(express.json());
 app.use("/api", routes);
 
 if (process.env.NODE_ENV === "production") {
-  const frontendPath = path.join(__dirname, "../frontend/dist");
+  const frontendPath = path.join(__dirname, "./public");
 
 // Serve static frontend files
   app.use(express.static(frontendPath));
