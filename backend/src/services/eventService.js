@@ -84,7 +84,13 @@ conditions.push(`e.starts_at >= CURRENT_DATE`);
     ${filterClause ? `WHERE ${filterClause}` : ""}
   `;
 
-  const [[{ total }]] = await db.query(countQuery, values);
+  //const [[{ total }]] = await db.query(countQuery, values);
+
+  const [countRows] = await db.query(countQuery, values);
+
+console.log("COUNT ROWS:", countRows);
+
+const total = countRows?.[0]?.total || 0;
 
 
   // -----------------------------------
