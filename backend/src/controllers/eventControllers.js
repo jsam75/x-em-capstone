@@ -33,9 +33,18 @@ export const fetchEvents = async (req, res, next) => {
     });
 
   } catch (err) {
-    next(err);
-  }
-};
+   // next(err);
+
+  console.error("GET EVENTS ERROR:", err);
+  
+  res.status(500).json({
+    success: false,
+    message: err.message,
+    stack: err.stack
+  });
+}
+  };
+//};
 
 // GET single event by ID
 export const getEventById = async (req, res, next) => {
