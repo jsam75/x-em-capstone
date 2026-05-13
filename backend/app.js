@@ -21,18 +21,6 @@ app.use(express.json());
 // API routes
 app.use("/api", routes);
 
-if (process.env.NODE_ENV === "production") {
-  const frontendPath = path.join(__dirname, "./public");
-
-// Serve static frontend files
-  app.use(express.static(frontendPath));
-
-// React Router fallback
-  app.get("*splat", (req, res) => {
-    res.sendFile(path.join(frontendPath, "index.html"));
-  });
-}
-
 // Temporary DB route for production debugging
 app.get("/api/db-test", async (req, res) => {
   try {
@@ -54,6 +42,18 @@ app.get("/api/db-test", async (req, res) => {
     });
   }
 });
+
+if (process.env.NODE_ENV === "production") {
+  const frontendPath = path.join(__dirname, "./public");
+
+// Serve static frontend files
+  app.use(express.static(frontendPath));
+
+// React Router fallback
+  app.get("*splat", (req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"));
+  });
+}
 
 // Error middleware
 app.use(errorHandler); // MUST be last middleware 
