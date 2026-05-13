@@ -11,4 +11,5 @@ const router = express.Router();
 router.use("/events", eventRoutes);
 router.use("/subjects", subjectRoutes);
 
+
 export default router;

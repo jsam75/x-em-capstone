@@ -7,6 +7,8 @@ import { fileURLToPath } from "url";
 import routes from "./src/routes/index.js";
 import { errorHandler } from "./src/middleware/errorHandler.js";
 
+import { db } from "./src/config/db.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -30,6 +32,28 @@ if (process.env.NODE_ENV === "production") {
     res.sendFile(path.join(frontendPath, "index.html"));
   });
 }
+
+// Temporary DB route for production debugging
+app.get("/api/db-test", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT 1 AS test");
+
+    res.json({
+      success: true,
+      rows
+    });
+  } catch (err) {
+    console.error("DB TEST ERROR:", err);
+
+    res.status(500).json({
+      success: false,
+      errorName: err?.name,
+      errorMessage: err?.message,
+      errorCode: err?.code,
+      fullError: String(err)
+    });
+  }
+});
 
 // Error middleware
 app.use(errorHandler); // MUST be last middleware 
