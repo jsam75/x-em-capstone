@@ -1,14 +1,20 @@
 export const errorHandler = (err, req, res, next) => {
-  console.error("Server Error:", err.message);
+  //console.error("Server Error:", err.message);
+  console.error("===== GLOBAL ERROR =====");
+  console.error(err);
+  console.error("TYPE:", typeof err);
+  console.error("MESSAGE:", err?.message);
+  console.error("STACK:", err?.stack);
+  console.error("========================");
 
-  if (err.code === "ER_DUP_ENTRY") {
+  if (err?.code === "ER_DUP_ENTRY") {
     return res.status(400).json({
       success: false,
       message: "Duplicate entry - resource already exists"
     });
   }
 
-  if (err.code === "ER_NO_REFERENCED_ROW_2") {
+  if (err?.code === "ER_NO_REFERENCED_ROW_2") {
     return res.status(400).json({
       success: false,
       message: "Invalid foreign key reference"
@@ -17,6 +23,6 @@ export const errorHandler = (err, req, res, next) => {
 
   res.status(500).json({
     success: false,
-    message: "Server error"
+    message: err?.message || "Unknown server error"
   });
 };
