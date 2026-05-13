@@ -42,9 +42,9 @@ export default function EditEventPage() {
   useEffect(() => {
     async function fetchSubjects() {
       const [subjectsRes, orgsRes, venuesRes] = await Promise.all([
-        fetch("http://localhost:3000/api/events/subjects"),
-        fetch("http://localhost:3000/api/events/organizations"),
-        fetch("http://localhost:3000/api/events/venues")
+        fetch("/api/events/subjects"),
+        fetch("/api/events/organizations"),
+        fetch("/api/events/venues")
       ]);
      const subjects = await subjectsRes.json();
      const orgs = await orgsRes.json();
@@ -62,7 +62,7 @@ export default function EditEventPage() {
   //EFFECT #2 - fetch event being edited
   useEffect(() => {
   async function loadEvent() {
-    const res = await fetch(`http://localhost:3000/api/events/${id}/edit`);
+    const res = await fetch(`/api/events/${id}/edit`);
     const result = await res.json();
 
     setForm({
@@ -104,7 +104,7 @@ export default function EditEventPage() {
     e.preventDefault();
 
     try {
-      await fetch(`http://localhost:3000/api/events/${id}`, {
+      await fetch(`/api/events/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"

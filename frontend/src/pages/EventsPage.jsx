@@ -49,7 +49,7 @@ function EventsPage() {
 
       const queryString = params.toString();
 
-      const url = `http://localhost:3000/api/events${
+      const url = `/api/events${
         queryString ? `?${queryString}` : ""
       }`;
 
@@ -75,7 +75,7 @@ function EventsPage() {
   useEffect(() => {
   async function loadSubjects() {
 
-    const res = await fetch("http://localhost:3000/api/subjects");
+    const res = await fetch("/api/subjects");
     const result = await res.json();
 
     setSubjectOptions(result.data);

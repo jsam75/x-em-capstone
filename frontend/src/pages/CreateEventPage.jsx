@@ -30,9 +30,9 @@ export default function CreateEventPage() {
   useEffect(() => {
     async function fetchSubjects() {
       const [subjectsRes, orgsRes, venuesRes] = await Promise.all([
-        fetch("http://localhost:3000/api/events/subjects"),
-        fetch("http://localhost:3000/api/events/organizations"),
-        fetch("http://localhost:3000/api/events/venues")
+        fetch("/api/events/subjects"),
+        fetch("/api/events/organizations"),
+        fetch("/api/events/venues")
       ]);
      const subjects = await subjectsRes.json();
      const orgs = await orgsRes.json();
@@ -71,7 +71,7 @@ export default function CreateEventPage() {
     e.preventDefault();
 
     try {
-      await fetch("http://localhost:3000/api/events", {
+      await fetch("/api/events", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

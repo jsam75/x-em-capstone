@@ -21,7 +21,7 @@ export default function EventDetailPage() {
   useEffect(() => {
     async function fetchEvent() {
       try {
-        const res = await fetch(`http://localhost:3000/api/events/${id}`);
+        const res = await fetch(`/api/events/${id}`);
         const result = await res.json();
 
         setEvent(result.data);
@@ -53,7 +53,7 @@ export default function EventDetailPage() {
   if (!confirmDelete) return;
 
   try {
-    await fetch(`http://localhost:3000/api/events/${id}`, {
+    await fetch(`/api/events/${id}`, {
       method: "DELETE"
     });
 
