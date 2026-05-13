@@ -7,7 +7,6 @@ import { fileURLToPath } from "url";
 import routes from "./src/routes/index.js";
 import { errorHandler } from "./src/middleware/errorHandler.js";
 
-import { db } from "./src/config/db.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,27 +20,6 @@ app.use(express.json());
 // API routes
 app.use("/api", routes);
 
-// Temporary DB route for production debugging
-app.get("/api/db-test", async (req, res) => {
-  try {
-    const [rows] = await db.query("SELECT 1 AS test");
-
-    res.json({
-      success: true,
-      rows
-    });
-  } catch (err) {
-    console.error("DB TEST ERROR:", err);
-
-    res.status(500).json({
-      success: false,
-      errorName: err?.name,
-      errorMessage: err?.message,
-      errorCode: err?.code,
-      fullError: String(err)
-    });
-  }
-});
 
 if (process.env.NODE_ENV === "production") {
   const frontendPath = path.join(__dirname, "./public");
