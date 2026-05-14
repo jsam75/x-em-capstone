@@ -1,5 +1,3 @@
-# lessons_learned.md
-
 # X_EM – Lessons Learned & Major Engineering Decisions
 
 ## Project Context
