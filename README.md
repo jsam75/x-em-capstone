@@ -408,7 +408,6 @@ Instead, it represents:
 
 ---
 
-
 # Getting Started
 
 ## Clone Repository
@@ -446,6 +445,7 @@ backend/
 PORT=3000
 
 DB_HOST=localhost
+DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=your_password
 DB_NAME=x_em
@@ -507,5 +507,43 @@ Core files include:
 * `seed.sql`
 
 Import the schema and seed data into MySQL before running the application.
+
+---
+
+# Production Build
+
+For production deployment, the frontend is build output is generated into:
+
+backend/public
+
+using:
+
+```bash
+cd frontend
+npm run build
+```
+
+The Express backend statically serves the compiled frontend assets during production deployment.
+
+---
+
+# Deployment
+
+X_EM is currently deployed using Railway with a monolithic deployment architecture.
+
+The production deployment uses:
+
+- a single Express runtime
+- Railway MySQL
+- static frontend serving through Express
+- React production builds served from:
+
+backend/public
+
+Frontend API requests use relative paths in production to support same-origin API communication within the monolithic deployment architecture.
+
+Live Deployment:
+https://x-em-capstone-production.up.railway.app
+
 
 
